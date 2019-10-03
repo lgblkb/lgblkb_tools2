@@ -168,17 +168,18 @@ class Folder(object):
 		return new_folder
 
 	def delete(self):
-		assert self.reactive,f'Folder {self.path} is not reactive'
-		shutil.rmtree(self.path)
+		# assert self.reactive,f'Folder {self.path} is not reactive'
+		shutil.rmtree(self.path,ignore_errors=True)
 
 	@logger.trace(skimpy=True)
 	def clear(self):
-		assert self.reactive,f'Folder {self.path} is not reactive'
-		try:
-			self.delete()
-		except FileNotFoundError:
-			# lu.simple_logger.warning('FileNotFoundError when trying to clear up the results folder. Passing on.')
-			pass
+		# assert self.reactive,f'Folder {self.path} is not reactive'
+		self.delete()
+		# try:
+		#
+		# except FileNotFoundError:
+		# 	# lu.simple_logger.warning('FileNotFoundError when trying to clear up the results folder. Passing on.')
+		# 	pass
 		create_path(self.path)
 		return self
 
