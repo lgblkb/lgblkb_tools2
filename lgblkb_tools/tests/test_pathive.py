@@ -1,6 +1,6 @@
-from src.lgblkb_tools2.pathify import *
 import pytest
-from datetime import datetime
+
+from lgblkb_tools.pathify import *
 
 this_folder_name=os.path.split(os.path.dirname(__file__))[-1]
 this_file_name=os.path.split(os.path.splitext(__file__)[0])[-1]
@@ -42,7 +42,7 @@ def test_get_splitted(this_filepath):
 def test_create_zipfile(some_dirpath):
 	zipfile_path=create_zipfile(some_dirpath)
 	assert get_name(zipfile_path)==this_folder_name
-	pass
+	os.remove(zipfile_path)
 
 def test_folder(this_folder: Folder,this_filepath):
 	name_args=[1,2,'some_param']
@@ -97,5 +97,3 @@ def test_folder(this_folder: Folder,this_filepath):
 	assert new_safe_folder.name==safe_folder.name
 	tmp_folder.delete()
 	assert not tmp_folder.exists
-
-

@@ -25,10 +25,17 @@ RUN pip3 install --no-cache-dir -r base_requirements.txt && rm base_requirements
 COPY geo_requirements.txt .
 RUN pip3 install --no-cache-dir -r geo_requirements.txt && rm geo_requirements.txt
 
-COPY ../requirements.txt .
+COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt && rm requirements.txt
 
-ARG LGBLKB_TOOLS_WHEEL
-COPY ../dist/${LGBLKB_TOOLS_WHEEL} .
-RUN pip3 install --no-cache-dir ${LGBLKB_TOOLS_WHEEL} && rm ${LGBLKB_TOOLS_WHEEL}
+#ARG LGBLKB_TOOLS_VERSION
+#RUN pip3 install --no-cache-dir lgblkb-tools==${LGBLKB_TOOLS_VERSION}
+RUN pip3 install --no-cache-dir lgblkb-tools
+
+
+
+
+
+
+
 

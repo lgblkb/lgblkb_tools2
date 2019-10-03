@@ -348,3 +348,4 @@ def create_iterated_path(iterated_path: str,start=None,delim='_',validator_func=
 		new_itempath=os.path.join(base_path,new_item_name+ext)
 		if not os.path.exists(new_itempath) or validator_func(new_itempath): return new_itempath
 		curr_iter+=1
+

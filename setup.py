@@ -1,16 +1,13 @@
-from pathlib import Path
-import os
-
-import wrapt
 import setuptools
+import wrapt
 from box import Box
-
-from src.lgblkb_tools2 import Folder,logger
+from lgblkb_tools import Folder
 
 with open("README.md","r") as fh:
 	long_description=fh.read()
 
-root_folder=Path(__file__).parent
+# root_folder=Path(__file__).parent
+root_folder=Folder(__file__,reactive=False)
 
 install_requires=[
 	'pandas',
@@ -62,7 +59,7 @@ def setup(version):
 		description="Some useful tools for everyday routine coding improvisation)",
 		long_description=long_description,
 		long_description_content_type="text/markdown",
-		url="https://bitbucket.org/lgblkb/lgblkb_tools",
+		url="https://github.com/lgblkb/lgblkb_tools",
 		packages=setuptools.find_packages(),
 		classifiers=(
 			"Programming Language :: Python :: 3.6",
@@ -81,14 +78,16 @@ class BoxProxy(wrapt.ObjectProxy):
 		pass
 
 	def elevate(self,major,minor,maintenance=None,tag=''):
-		logger.debug('current_version: %s',self.version)
+		print('Current version: ',self.version)
+		# logger.debug('current_version: %s',self.version)
 		version_portions,old_tag=self.get_version_portions_and_tag()
 		prev_major,prev_minor,prev_maint=version_portions
 		if major!=prev_major or minor!=prev_minor: maintenance=maintenance or 0
 		elif maintenance is None: maintenance=version_portions[-1]+1
 		new_version=f"{major}.{minor}.{maintenance}"
 		if tag: new_version+=f'.{tag}'
-		logger.debug('new_version: %s',new_version)
+		# logger.debug('new_version: %s',new_version)
+		print('new_version: ',new_version)
 
 		self._self_new_version=new_version
 		return new_version
@@ -117,8 +116,15 @@ class BoxProxy(wrapt.ObjectProxy):
 
 Elevator=BoxProxy(Box)
 
+def get_package_info():
+	return Elevator.from_yaml(root_folder['package_info.yaml'])
+
 def main():
-	info=Elevator.from_yaml(root_folder.joinpath('package_info.yaml'))
+	build_folder=root_folder['build']
+	dist_folder=root_folder['dist']
+	info=get_package_info()
+	build_folder.delete()
+	dist_folder.delete()
 	new_version=info.elevate(major=0,minor=9)
 	setup(new_version)
 	info.update()

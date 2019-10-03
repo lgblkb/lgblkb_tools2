@@ -1,1 +1,5 @@
 logs
+.pytest_cache
+build
+dist
+lgblkb_tools.egg-info

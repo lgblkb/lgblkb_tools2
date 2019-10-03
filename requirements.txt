@@ -1,3 +1,5 @@
+pytest
+telegram
 wrapt
 decorator
 pandas
