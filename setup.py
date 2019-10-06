@@ -125,7 +125,7 @@ def main():
 	info=get_package_info()
 	build_folder.delete()
 	dist_folder.delete()
-	new_version=info.elevate(major=0,minor=9)
+	new_version=info.elevate(major=1,minor=0)
 	setup(new_version)
 	info.update()
 	pass

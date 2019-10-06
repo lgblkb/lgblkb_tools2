@@ -57,7 +57,9 @@ def generate_handle():
 	def _handle_generator(wrapped,instance,args,kwargs):
 		log_detailer=lambda *_args,level=logging.DEBUG,log_format='',**_kwargs:(level,log_format,_args,_kwargs)
 		the_level,the_format,args,kwargs=log_detailer(*args,**kwargs)
-		return instance.create_handler(wrapped(*args,**kwargs),level=the_level,log_format=the_format)
+		instance.create_handler(wrapped(*args,**kwargs),level=the_level,log_format=the_format)
+		instance.info('Log handle %s created at %s',instance.logger.handlers[-1].__class__.__name__,datetime.datetime.now())
+		return instance
 
 	return _handle_generator
 
@@ -88,13 +90,22 @@ class TheLogger(IndentedLoggerAdapter):
 	def to_rotate(self,log_filepath,maxBytes=2.5e6,backupCount=14,**kwargs):
 		return RotatingFileHandler(filename=log_filepath,maxBytes=int(maxBytes),backupCount=backupCount)
 
-	def trace(self,level=logging.DEBUG,skimpy: bool = False):
+	def trace(self,level=logging.DEBUG,skimpy: bool = False,verbose=False):
 		log_say=log_sayer(self,level)
 
 		@wrapt.decorator
 		def wrapper(wrapped,instance,args,kwargs):
 			if skimpy: log_say('Performing "%s"...',wrapped.__name__)
 			else: log_say('Running "%s":',wrapped.__name__)
+			if verbose:
+				logger.debug('args_count: %s',len(args)).a(3)
+				for arg in args:
+					logger.debug('arg: %s',arg)
+				logger.s(3)
+				logger.debug('kwargs_count: %s',len(kwargs)).a(3)
+				for k,v in kwargs.items():
+					logger.debug('%s: %s',k,v)
+				logger.s(3)
 			start=timer()
 			self.add()
 			out=wrapped(*args,**kwargs)

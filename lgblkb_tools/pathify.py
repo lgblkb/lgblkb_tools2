@@ -337,6 +337,9 @@ class Folder(object):
 	def __repr__(self):
 		return f"{self.__class__.__name__}(r'{self.path}')"
 
+	def __fspath__(self):
+		return self.path
+
 def create_iterated_path(iterated_path: str,start=None,delim='_',validator_func=None) -> str:
 	if validator_func is None: validator_func=lambda x:False
 	base_path,item_name_with_ext=os.path.split(iterated_path)
@@ -348,4 +351,3 @@ def create_iterated_path(iterated_path: str,start=None,delim='_',validator_func=
 		new_itempath=os.path.join(base_path,new_item_name+ext)
 		if not os.path.exists(new_itempath) or validator_func(new_itempath): return new_itempath
 		curr_iter+=1
-
