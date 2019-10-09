@@ -67,7 +67,7 @@ def create_zipfile(dir_to_zip,savepath=''):
 		else:
 			create_path(savepath,stop_depth=0)
 			savepath=os.path.join(savepath,dir_name+'.zip')
-	else: savepath=dir_name+'.zip'
+	else: savepath=dir_to_zip+'.zip'
 
 	pwd_length=len(os.getcwd())
 	with zipfile.ZipFile(savepath,"w",compression=zipfile.ZIP_DEFLATED) as zf:
@@ -102,7 +102,7 @@ def _get_name_parts_from_depth(path,include_depth):
 		raise ValueError(f'include_depth={include_depth}')
 	return parent_parts
 
-class Folder(object):
+class Folder(os.PathLike):
 
 	def __init__(self,path='',reactive=True,assert_exists=False):
 		if isinstance(path,Folder): path=path.path
