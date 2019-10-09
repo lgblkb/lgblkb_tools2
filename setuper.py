@@ -15,8 +15,8 @@ class Deployer(object):
 
 	def git_push(self,commit_message):
 		lgblkb_tools_version=get_package_info().version
-		utils.run_command(f"git add -A")
-		utils.run_command(f'git commit -m "v{lgblkb_tools_version}: {commit_message}"')
+		# utils.run_command(f"git add -A")
+		utils.run_command(f'git commit -am "v{lgblkb_tools_version}: {commit_message}"')
 		utils.run_command(f'git push')
 		return self
 

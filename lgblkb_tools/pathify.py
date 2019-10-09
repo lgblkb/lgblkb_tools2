@@ -84,9 +84,9 @@ def create_zipfile(dir_to_zip,savepath=''):
 	os.chdir(save_cwd)
 	return os.path.abspath(savepath)
 
-def generate_name_portions(*args,**kwargs):
+def generate_name_portions(*args,__kv_delim__='-',**kwargs):
 	arg_parts=[str(x) for x in args]
-	kwarg_parts=[f"{k}-{v}" for k,v in kwargs.items() if v is not None]
+	kwarg_parts=[f"{k}{__kv_delim__}{v}" for k,v in kwargs.items() if v is not None]
 	return arg_parts+kwarg_parts
 
 def _get_name_parts_from_depth(path,include_depth):

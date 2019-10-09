@@ -120,4 +120,4 @@ supervisord.conf
 test_files/configs.yaml
 test_files/configs_lgblkb.yaml
 /archived/
-!/some_savepath.zip
+.idea/*
