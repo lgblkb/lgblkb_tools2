@@ -1,3 +1,4 @@
+import collections
 import hashlib
 import multiprocessing as mp
 import functools
@@ -201,3 +202,27 @@ def run_command(cmd):
 	process=subprocess.Popen(cmd,stdout=subprocess.PIPE,shell=True)
 	for c in iter(lambda:process.stdout.read(1),b''):  # replace '' with b'' for Python 3
 		sys.stdout.write(c.decode(sys.stdout.encoding,errors='ignore'))
+
+def dict_merge(dct,merge_dct,add_keys=True):
+	""" Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
+	updating only top-level keys, dict_merge recurses down into dicts nested
+	to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
+	``dct``.
+	:param add_keys: add missing keys from merge_dct to dct.
+	:param dct: dict onto which the merge is executed
+	:param merge_dct: dct merged into dct
+	:return: None
+	"""
+	# for k,v in merge_dct.iteritems():
+	# 	if (k in dct and isinstance(dct[k],dict)
+	# 			and isinstance(merge_dct[k],collections.Mapping)):
+	# 		dict_merge(dct[k],merge_dct[k])
+	# 	else:
+	# 		dct[k]=merge_dct[k]
+
+	for k,v in merge_dct.items():
+		if isinstance(dct.get(k),dict) and isinstance(v,collections.Mapping):
+			dct[k]=dict_merge(dct[k],v,add_keys=add_keys)
+		else:
+			dct[k]=v
+	return dct
