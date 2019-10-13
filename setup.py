@@ -44,7 +44,7 @@ install_requires=[
 	'psycopg2',
 	'jsonpickle',
 	'fabric',
-	'circus',
+	# 'circus',
 	'checksumdir',
 	'joblib',
 
