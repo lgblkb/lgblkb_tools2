@@ -195,12 +195,12 @@ class DataSet:
 		return datasource,ds_layer
 
 	@logger.trace()
-	def to_geotiff(self,filepath,no_data_value=-9999):
+	def to_geotiff(self,filepath,no_data_value=-9999,dtype=gdal.GDT_Float32):
 		band=self.ds.GetRasterBand(1)
 		arr=band.ReadAsArray()
 		[cols,rows]=arr.shape
 		driver=gdal.GetDriverByName("GTiff")
-		outdata=driver.Create(filepath,rows,cols,1,gdal.GDT_Float32)
+		outdata=driver.Create(filepath,rows,cols,1,dtype)
 		outdata.SetGeoTransform(self.transform)  ##sets same geotransform as input
 		outdata.SetProjection(self.projection)  ##sets same projection as input
 		outdata.GetRasterBand(1).WriteArray(np.where(np.isnan(arr),no_data_value,arr))
