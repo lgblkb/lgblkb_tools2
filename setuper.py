@@ -1,5 +1,5 @@
 import os
-
+from lgblkb_tools import logger
 from lgblkb_tools.common import utils
 from setup import get_package_info
 
@@ -20,17 +20,12 @@ class Deployer(object):
 		utils.run_command(f'git push')
 		return self
 
+@logger.trace()
 def main():
-	from lgblkb_tools.remote import SshMan
-	import fabric
-	# sshman=SshMan(fabric.Connection())
-	# return
 	deployer=Deployer()
 	deployer.build_and_upload()
-	deployer.git_push(input('Git commit_message:\n') or 'Update')
-	utils.run_command(f'docker build -t lgblkb/base .')
-
-
+	# deployer.git_push(input('Git commit_message:\n') or 'Update')
+	utils.run_command(f'docker build --no-cache -t lgblkb/base .')
 
 	pass
 

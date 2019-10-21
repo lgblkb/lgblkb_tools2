@@ -19,11 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY base_requirements.txt .
-RUN pip3 install --no-cache-dir -r base_requirements.txt && rm base_requirements.txt
-
-COPY geo_requirements.txt .
-RUN pip3 install --no-cache-dir -r geo_requirements.txt && rm geo_requirements.txt
+#COPY base_requirements.txt .
+#RUN pip3 install --no-cache-dir -r base_requirements.txt && rm base_requirements.txt
+#
+#COPY geo_requirements.txt .
+#RUN pip3 install --no-cache-dir -r geo_requirements.txt && rm geo_requirements.txt
 
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt && rm requirements.txt

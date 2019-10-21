@@ -65,11 +65,12 @@ def generate_handle():
 
 # noinspection PyUnusedLocal
 class TheLogger(IndentedLoggerAdapter):
-	def __init__(self,logger_name,level=logging.DEBUG,extra=None,auto_add=True,_pre_initialize=False,**kwargs):
-		_logger=logging.getLogger(logger_name)
+	def __init__(self,logger_name,level=logging.DEBUG,extra=None,auto_add=True,propagate=False,_logger=None,**kwargs):
+		if _logger is None:
+			_logger=logging.getLogger(logger_name)
 		_logger.setLevel(level)
 		super(TheLogger,self).__init__(_logger,extra=extra,auto_add=auto_add,**dict(base_log_indent_settings,**kwargs))
-		_logger.propagate=False
+		_logger.propagate=propagate
 
 	def create_handler(self,handler: logging.Handler,level=logging.DEBUG,log_format=''):
 		if log_format:
@@ -77,10 +78,10 @@ class TheLogger(IndentedLoggerAdapter):
 			else: log_formatter_class=logging.Formatter
 			log_formatter=log_formatter_class(log_format,date_fmt)
 		else:
-			if type(handler) is logging.StreamHandler:
-				log_formatter=ColoredFormatter(colored_log_format,date_fmt)
-			else:
-				log_formatter=logging.Formatter(default_log_format,date_fmt)
+			# if type(handler) is logging.StreamHandler:
+			# 	log_formatter=ColoredFormatter(colored_log_format,date_fmt)
+			# else:
+			log_formatter=logging.Formatter(default_log_format,date_fmt)
 		handler.setFormatter(log_formatter)
 		handler.setLevel(level=level)
 		self.logger.addHandler(handler)
@@ -117,11 +118,13 @@ class TheLogger(IndentedLoggerAdapter):
 
 	@generate_handle()
 	def to_file(self,log_filepath,**kwargs):
-		return logging.FileHandler(log_filepath)
+		return logging.FileHandler(log_filepath,**kwargs)
 
 	@generate_handle()
-	def to_stream(self,**kwargs):
-		return logging.StreamHandler(sys.stdout)
+	def to_stream(self,stream=None):
+		return logging.StreamHandler(stream or sys.stdout)
+
+
 
 logger: TheLogger=TheLogger('lgblkb_logger').to_stream()
 logger.info('Log start datetime: %s',datetime.datetime.now())
