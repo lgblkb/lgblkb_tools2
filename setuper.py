@@ -5,8 +5,11 @@ from setup import get_package_info
 
 class Deployer(object):
 	def __init__(self):
-		self.lgblkb_tools_version=get_package_info().version
 		pass
+
+	@property
+	def lgblkb_tools_version(self):
+		return get_package_info().version
 
 	def build_and_upload(self):
 		utils.run_command('python ./setup.py sdist bdist_wheel')
@@ -25,7 +28,8 @@ def main():
 	deployer=Deployer()
 	deployer.build_and_upload()
 	# deployer.git_push(input('Git commit_message:\n') or 'Update')
-	utils.run_command(f'docker build --no-cache -t lgblkb/base .')
+	utils.run_command(f"""docker build --build-arg LGBLKB_TOOLS_VERSION="{'=='+deployer.lgblkb_tools_version}" -t lgblkb/base .""")
+	# utils.run_command()
 
 	pass
 

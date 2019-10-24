@@ -28,9 +28,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt && rm requirements.txt
 
-#ARG LGBLKB_TOOLS_VERSION
+ARG LGBLKB_TOOLS_VERSION
 #RUN pip3 install --no-cache-dir lgblkb-tools==${LGBLKB_TOOLS_VERSION}
-RUN pip3 install --no-cache-dir lgblkb-tools
+RUN pip3 install --no-cache-dir lgblkb-tools${LGBLKB_TOOLS_VERSION:-}
 
 
 

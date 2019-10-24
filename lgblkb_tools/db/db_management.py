@@ -50,8 +50,8 @@ def get_engine(db_configs: dict,create_if_not_exists=False,drivername='postgres'
 	return engine
 
 def get_session(engine,autoflush=True,autocommit=False,expire_on_commit=True,info=None,**kwargs) -> orms.Session:
-	session=sessionmaker(bind=engine,autoflush=autoflush,autocommit=autocommit,expire_on_commit=expire_on_commit,
-	                     info=info,**kwargs)()
+	session: orms.Session=sessionmaker(bind=engine,autoflush=autoflush,autocommit=autocommit,expire_on_commit=expire_on_commit,
+	                                   info=info,**kwargs)()
 	return session
 
 @contextmanager
@@ -135,7 +135,7 @@ class Manager(object):
 
 	@property
 	def session(self):
-		if self.__session is None:
+		if self.__session is None or not self.__session.is_active:
 			self.__session=get_session(self.engine)
 		return self.__session
 
