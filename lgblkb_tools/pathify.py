@@ -32,7 +32,7 @@ def get_splitted(path):
 	folders=[]
 	while 1:
 		path,folder=os.path.split(path)
-
+		
 		if folder!="":
 			folders.append(folder)
 		else:
@@ -68,19 +68,19 @@ def create_zipfile(dir_to_zip,savepath=''):
 			create_path(savepath,stop_depth=0)
 			savepath=os.path.join(savepath,dir_name+'.zip')
 	else: savepath=dir_to_zip+'.zip'
-
+	
 	pwd_length=len(os.getcwd())
 	with zipfile.ZipFile(savepath,"w",compression=zipfile.ZIP_DEFLATED) as zf:
 		for dirpath,dirnames,filenames in os.walk(dir_to_zip):
 			for name in sorted(dirnames):
 				path=os.path.normpath(os.path.join(dirpath,name))
 				zf.write(path,path[pwd_length+1:])
-
+			
 			for name in filenames:
 				path=os.path.normpath(os.path.join(dirpath,name))
 				if os.path.isfile(path):
 					zf.write(path,path[pwd_length+1:])
-
+	
 	os.chdir(save_cwd)
 	return os.path.abspath(savepath)
 
@@ -103,53 +103,54 @@ def _get_name_parts_from_depth(path,include_depth):
 	return parent_parts
 
 class Folder(os.PathLike):
-
+	
 	def __init__(self,path='',reactive=True,assert_exists=False):
 		if isinstance(path,Folder): path=path.path
 		path=os.path.abspath(os.path.normpath(path))
 		if self._is_file(path): path=get_parent_dir(path)
 		if not self._exists(path):
-			if assert_exists: raise ValueError('Path should already exist.',dict(path=path))
+			# possible_extension=os.path.splitext(path)[-1]
+			# if possible_extension:
+			# 	logger.warning('Provided folder path (which does not exist) appears to have an extension %s',possible_extension)
+			# 	pass
+			if assert_exists: raise AssertionError('Path should already exist.',dict(path=path))
 			elif reactive: create_path(path)
-			possible_extension=os.path.splitext(path)[-1]
-			if possible_extension:
-				logger.warning('Provided folder path (which does not exist) appears to have an extension %s',possible_extension)
-				pass
-
+		
 		self.path=path
-		self._class=functools.partial(self.__class__,reactive=reactive)
+		self._class=functools.partial(self.__class__)
 		self._inherit_class=self._class
 		self.reactive=reactive
-
+	
 	@property
-	def name(self):
+	def name(self) -> str:
 		return os.path.split(self.path)[-1]
-
+	
 	def __str__(self):
-		return f"{self.__class__.__name__}(r'{self.path}')"
-
+		# return f"{self.__class__.__name__}(r'{self.path}')"
+		return self.path
+	
 	def get_filepath(self,*name_args,ext='',delim='_',include_depth=None,datetime_loc_index=None,iterated=False,**name_kwargs):
 		parts=list()
 		if include_depth: parts.extend(_get_name_parts_from_depth(self.path,include_depth))
 		parts.extend(generate_name_portions(*name_args,**name_kwargs))
 		if datetime_loc_index is not None: parts.insert(datetime_loc_index,datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 		assert parts,'Nothing is provided to create filepath.'
-
+		
 		output_path=os.path.join(self.path,delim.join(map(str,parts)).replace(' ',delim)+ext)
 		if iterated:
 			return create_iterated_path(output_path)
 		else:
 			return output_path
-
+	
 	def _exists(self,path):
 		return os.path.exists(path)
-
+	
 	def _is_file(self,path):
 		return os.path.isfile(path)
-
+	
 	def _create_dir(self,dirpath,**kwargs):
 		return self._inherit_class(dirpath,**kwargs)
-
+	
 	def create(self,*name_args,delim='_',datetime_loc_index=None,iterated=False,reactive=None,**name_kwargs):
 		"""
 		:param name_args: args that are converted to name portions.
@@ -164,13 +165,14 @@ class Folder(os.PathLike):
 		"""
 		new_dirpath=self.get_filepath(*name_args,ext='',delim=delim,include_depth=None,
 		                              datetime_loc_index=datetime_loc_index,iterated=iterated,**name_kwargs)
-		new_folder=self._create_dir(new_dirpath,**({} if reactive is None else dict(reactive=reactive)))
+		# new_folder=self._create_dir(new_dirpath,**({} if reactive is None else dict(reactive=reactive)))
+		new_folder=self._create_dir(new_dirpath,**dict(reactive=self.reactive if reactive is None else reactive))
 		return new_folder
-
+	
 	def delete(self):
 		# assert self.reactive,f'Folder {self.path} is not reactive'
 		shutil.rmtree(self.path,ignore_errors=True)
-
+	
 	@logger.trace(skimpy=True)
 	def clear(self):
 		# assert self.reactive,f'Folder {self.path} is not reactive'
@@ -182,30 +184,39 @@ class Folder(os.PathLike):
 		# 	pass
 		create_path(self.path)
 		return self
-
+	
+	def glob_delete(self,*patterns,recursive=True):
+		glob_search_results=self.glob_search(*patterns,recursive=recursive)
+		for glob_search_result in glob_search_results:
+			if os.path.isdir(glob_search_result):
+				shutil.rmtree(glob_search_result)
+			else:
+				os.remove(glob_search_result)
+		return self
+	
 	@property
 	def children(self):
 		return self.glob_search('*')
-
+	
 	def glob_search(self,*patterns,recursive=True):
 		return glob.glob(self.get_filepath(*patterns),recursive=recursive)
-
+	
 	@logger.trace(skimpy=True)
 	def zip(self,zip_filepath='',forced=False):
 		zip_filepath=zip_filepath or self.parent().get_filepath(self.name,ext='.zip')
 		if len(get_splitted(zip_filepath))==1: zip_filepath=self.parent().get_filepath(zip_filepath)
 		if not zip_filepath.endswith('.zip'): zip_filepath+='.zip'
-		if not self.reactive: return zip_filepath
-
+		# if not self.reactive: return zip_filepath
+		
 		# assert self.reactive,f'Folder {self.path} is not reactive'
-
+		
 		if os.path.exists(zip_filepath):
 			if forced: os.remove(zip_filepath)
 			else: return zip_filepath
-
+		
 		create_zipfile(self.path,zip_filepath)
 		return zip_filepath
-
+	
 	@logger.trace(skimpy=True)
 	def unzip(self,zip_filepath,create_subdir=True):
 		# assert self.reactive,f'Folder {self.path} is not reactive'
@@ -224,7 +235,7 @@ class Folder(os.PathLike):
 		if not self.reactive: return self._inherit_class(dst_folder_path)
 		shutil.unpack_archive(zip_filepath,dst_folder_path,'zip')
 		return self._inherit_class(dst_folder_path)
-
+	
 	@logger.trace(skimpy=True)
 	def rename(self,new_name):
 		new_path=self.parent().get_filepath(new_name)
@@ -232,21 +243,22 @@ class Folder(os.PathLike):
 		if self.reactive: os.rename(self.path,new_path)
 		self.path=new_path
 		return self
-
+	
 	@logger.trace(skimpy=True)
 	def move_to(self,dst_path):
 		if not isinstance(dst_path,str): dst_path=dst_path.path
-		if self.reactive: shutil.move(self.path,dst_path)
+		# if self.reactive: shutil.move(self.path,dst_path)
+		shutil.move(self.path,dst_path)
 		self.path=os.path.join(dst_path,self.name)
 		return self
-
+	
 	def parent(self,depth=1):
 		"""
 
 		:rtype: Folder
 		"""
 		return self._inherit_class(get_parent_dir(self.path,depth=depth))
-
+	
 	@logger.trace(skimpy=True)
 	def copy_to(self,dst_folder,new_name='',forced=False):
 		"""
@@ -256,7 +268,7 @@ class Folder(os.PathLike):
 		dst_folder_path=self._inherit_class(dst_folder).get_filepath(new_name or self.name)
 		delete_dst=lambda:shutil.rmtree(dst_folder_path,ignore_errors=True)
 		resulter=lambda:self._class(dst_folder_path)
-
+		
 		if os.path.exists(dst_folder_path):
 			if forced: delete_dst()
 			else:
@@ -264,10 +276,10 @@ class Folder(os.PathLike):
 				destination_hashsum=dirhash(dst_folder_path)
 				if source_hashsum==destination_hashsum: return resulter()
 				else: delete_dst()
-
+		
 		shutil.copytree(self.path,dst_folder_path)
 		return resulter()
-
+	
 	def size(self,byte_factor=1e-9):
 		total_size=0
 		for dirpath,dirnames,filenames in os.walk(self.path):
@@ -275,11 +287,11 @@ class Folder(os.PathLike):
 				fp=os.path.join(dirpath,f)
 				total_size+=os.path.getsize(fp)
 		return total_size*byte_factor
-
+	
 	@property
 	def exists(self):
 		return self._exists(self.path)
-
+	
 	# def create_iterated(self,start=None,delim='_',empty_ok=False):
 	# 	if empty_ok:
 	# 		validator_func=lambda existing_path:not self._inherit_class(existing_path).children
@@ -294,20 +306,20 @@ class Folder(os.PathLike):
 	# 		new_folder=self.__class__(new_iter_folder_path)
 	# 		if not new_folder==self and not self.children(): self.delete()
 	# 	return new_folder
-
+	
 	def __getitem__(self,item):
 		item=str(item)
 		if os.path.splitext(item)[-1]:
 			return self.get_filepath(item)
 		else:
 			return self.create(item)
-
+	
 	def __eq__(self,other):
 		if isinstance(other,str):
 			return self.path==other
 		else:
 			return self.path==other.path
-
+	
 	def __setitem__(self,key,value):
 		filename,ext=os.path.splitext(key)
 		if isinstance(value,str):
@@ -324,19 +336,21 @@ class Folder(os.PathLike):
 				return
 			else:
 				string_obj='\n'.join(map(lambda kv:f"{kv[0]}: {kv[1]}",value.items()))
-
+		
 		else:
 			string_obj=str(value)
 		# def writer(filehandler):
 		# 	for k,v in value.items():
 		# 		filehandler.writelines([f"{k}: {v}"])
-
+		
 		with open(self.get_filepath(filename,ext=ext or '.txt'),'w') as fh:
 			fh.write(str(string_obj))
-
+	
 	def __repr__(self):
 		return f"{self.__class__.__name__}(r'{self.path}')"
-
+	
+	# return self.path
+	
 	def __fspath__(self):
 		return self.path
 
@@ -344,7 +358,7 @@ def create_iterated_path(iterated_path: str,start=None,delim='_',validator_func=
 	if validator_func is None: validator_func=lambda x:False
 	base_path,item_name_with_ext=os.path.split(iterated_path)
 	item_name,ext=os.path.splitext(item_name_with_ext)
-
+	
 	curr_iter=0 if start is None else start
 	while True:
 		new_item_name=delim.join([item_name,f'{curr_iter}'])

@@ -158,7 +158,7 @@ class Manager(object):
 		return self
 
 	@contextmanager
-	def session_context(self,**kwargs):
+	def session_context(self,**kwargs) -> orms.Session:
 		self.__session=session=get_session(self.engine,**kwargs)
 		try:
 			yield session

@@ -3,8 +3,8 @@ import wrapt
 from box import Box
 from lgblkb_tools import Folder
 
-with open("README.md","r") as fh:
-	long_description=fh.read()
+# with open("README.md","r") as fh:
+# 	long_description=fh.read()
 
 # root_folder=Path(__file__).parent
 root_folder=Folder(__file__,reactive=False)
@@ -57,7 +57,7 @@ def setup(version):
 		author="Dias Bakhtiyarov",
 		author_email="dbakhtiyarov@nu.edu.kz",
 		description="Some useful tools for everyday routine coding improvisation)",
-		long_description=long_description,
+		long_description='',
 		long_description_content_type="text/markdown",
 		url="https://github.com/lgblkb/lgblkb_tools",
 		packages=setuptools.find_packages(),

@@ -1,5 +1,7 @@
+import pandas as pd
 import pytest
 
+from lgblkb_tools.common import utils
 from lgblkb_tools.pathify import *
 
 this_folder_name=os.path.split(os.path.dirname(__file__))[-1]
@@ -29,7 +31,7 @@ def test_create_path(this_filepath,some_dirpath):
 	created_path=create_path(this_filepath,stop_depth=1)
 	assert os.path.exists(created_path)
 	assert created_path==this_filepath
-
+	
 	created_path=create_path(some_dirpath,stop_depth=0)
 	assert os.path.exists(created_path)
 	assert created_path==some_dirpath
@@ -51,33 +53,33 @@ def test_folder(this_folder: Folder,this_filepath):
 	assert get_name(this_folder.get_filepath(datetime_loc_index=0)).split('_')[0]==str(datetime.today().date())
 	assert this_folder.exists
 	assert this_filepath in Folder(__file__).glob_search('*')
-
+	
 	tmp_folder=this_folder.create('tmp').clear()
 	assert tmp_folder.exists
 	assert tmp_folder.create('subdir1').parent().name=='tmp'
-
+	
 	tmp2_folder=this_folder.create('tmp2').clear()
 	tmp2_folder['qwe.txt']=123
 	copied_folder=tmp2_folder.copy_to(tmp_folder)
 	assert copied_folder.name==tmp2_folder.name
 	assert copied_folder.parent()==tmp_folder
 	assert get_name(copied_folder.children[0])=='qwe'
-
+	
 	assert tmp2_folder.exists
 	tmp2_folder.delete()
 	assert not tmp2_folder.exists
-
+	
 	src_folder=tmp_folder['tmp_test_src_folder']
 	copied_folder.move_to(src_folder)
 	assert copied_folder.parent()==src_folder
-
+	
 	for i in range(10):
 		iter_folder=copied_folder.create('some_folder',iterated=True)
 		assert iter_folder.name=='some_folder_'+str(i)
-
+	
 	zip_filepath=src_folder.zip()
 	assert get_name(zip_filepath)==src_folder.name
-
+	
 	safe_folder=tmp_folder.create('qfnowdaofnwoawd.SAFE')
 	assert safe_folder.name.endswith('.SAFE')
 	for i in range(10):
@@ -85,11 +87,11 @@ def test_folder(this_folder: Folder,this_filepath):
 	assert len(safe_folder.children)==10
 	zip_filepath=safe_folder.zip()
 	assert zip_filepath.endswith('.SAFE.zip')
-
+	
 	zip_filepath=safe_folder.zip(safe_folder.name.replace('.SAFE',''))
 	assert Folder(zip_filepath)==safe_folder.parent()
 	assert not zip_filepath.endswith('.SAFE.zip')
-
+	
 	src_folder.unzip(zip_filepath,create_subdir=False)
 	# assert zip_filepath.rstrip('.zip')==''
 	new_safe_folder=src_folder.create(zip_filepath.replace('.zip','.SAFE'),reactive=False)
@@ -97,3 +99,21 @@ def test_folder(this_folder: Folder,this_filepath):
 	assert new_safe_folder.name==safe_folder.name
 	tmp_folder.delete()
 	assert not tmp_folder.exists
+
+def test_folder_bool(this_folder: Folder):
+	if this_folder:
+		return
+	else:
+		raise NotImplementedError
+
+def main():
+	f1=Folder(r'/home/lgblkb/PycharmProjects/imagination/imagination/data/sentinel2',assert_exists=True)
+	# utils.run_command(f'cp -ans {f1}* {f2}/')
+	# df=pd.DataFrame(map(Folder,[*f1['unzipped'].children,*f2['unzipped'].children]),columns=['safe_folder'])
+	
+	pass
+	
+	pass
+
+if __name__=='__main__':
+	main()

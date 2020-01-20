@@ -27,7 +27,7 @@
 	# no_data_value=0
 	# p1=gsup.results_folder.create('test1').get_filepath('ndvi',ext='.tiff',include_datetime=True)
 	# p2=gsup.results_folder.create('test1').get_filepath('ndvi_merged',ext='.tiff',include_datetime=True)
-	# rgb_to_geotiff(p1,cutline_json=geojson.Feature(geometry=db_opers.to_shape(cad_info.geom)),*band_paths,no_data_value=no_data_value)
+	# rgb_to_geotiff(p1,cutline_feature=geojson.Feature(geometry=db_opers.to_shape(cad_info.geom)),*band_paths,no_data_value=no_data_value)
 	# gsup.run_shell(gsup.gdal_merge_py,'-o',p2,'-n',str(no_data_value),'-a_nodata','nan',p1,with_popen=True)
 
 	# np.random.seed(1)

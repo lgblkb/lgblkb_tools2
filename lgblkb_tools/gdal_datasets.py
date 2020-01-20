@@ -1,10 +1,13 @@
+import shapely.geometry as shg
+import geojson
+import shapely.wkt as shwkt
 import logging
 import os
 import uuid
 
 import matplotlib.pyplot as plt
 import numpy as np
-from osgeo import gdal,gdal_array,ogr,osr
+from osgeo import gdal,gdal_array,ogr,osr,gdalconst
 
 from . import logger
 from . import pathify
@@ -65,10 +68,12 @@ def contour_generate(ds,val_ranges,driver_name,fpath,field_name,field_type):
 
 #todo:Cropping dataset
 class DataSet:
-
+	
 	def __init__(self,ds,array=None,name=''):
+		self.path=None
 		if isinstance(ds,str):
 			name=name or '_'.join(pathify.get_splitted(os.path.splitext(ds)[0])[-2:])
+			self.path=ds
 			ds=gdal.Open(ds)
 		self.ds=ds
 		geom=geom_from_ds(self.ds)
@@ -78,25 +83,25 @@ class DataSet:
 		self.projection=self.ds.GetProjection()
 		self.transform=self.ds.GetGeoTransform()
 		self.name=name
-
-	@logger.trace(level=logging.DEBUG,skimpy=True)
-	def generate_array(self):
-		self.__array=ds_to_array(self.ds)
-		return self
-
+	
+	@logger.trace(skimpy=True)
+	def get_array(self,band_index=1):
+		return ds_to_array(self.ds,band_index=band_index)
+	
 	@property
 	def array(self):
 		if self.__array is None:
-			self.generate_array()
+			self.__array=self.get_array()
 		return self.__array
-
+	
 	@property
 	def epsg(self):
 		return get_epsg_from(self.ds)
-
+	
 	def plot(self,show=False):
-		return plot_ds(self.ds,show=show)
-
+		plot_ds(self.ds,show=show)
+		return self
+	
 	@logger.trace()
 	def reproject(self,to_epsg):
 		"""
@@ -147,32 +152,37 @@ class DataSet:
 		gdal.ReprojectImage(self.ds,dest,wgs84.ExportToWkt(),osng.ExportToWkt(),gdal.GRA_Bilinear)
 		#gdal.ReprojectImage(self.ds,dest,wgs84.ExportToWkt(),osng.ExportToWkt())
 		return DataSet(dest)
-
-	@logger.trace(level=logging.DEBUG,skimpy=True)
-	def do_warp(self,cutline_json=None,destroy_after=True,out_epsg=4326,**kwargs):
-		temp_filepath=f"/vsimem/{uuid.uuid4()}"
-
-		gdal.Warp(temp_filepath,self.ds,
-		          cropToCutline=not cutline_json is None,srcSRS=f'EPSG:{self.epsg}',dstSRS=f'EPSG:{out_epsg}',
-		          cutlineDSName=cutline_json,**dict(dict(),**kwargs))
-		ds=DataSet(temp_filepath)
-		# cropped_ds=gdal.Warp('',self.ds,format='VRT',cropToCutline=cropToCutline,cutlineDSName=cutline_json,**kwargs)
+	
+	@logger.trace(skimpy=True)
+	def do_warp(self,cutline_feature=None,destroy_after=True,out_epsg=None,out_path='',return_as_ds=True,**kwargs):
+		out_path=out_path or f"/vsimem/{uuid.uuid4()}"
+		if not cutline_feature is None:
+			if isinstance(cutline_feature,str):
+				cutline_feature=geojson.Feature(geometry=shwkt.loads(cutline_feature))
+			elif isinstance(cutline_feature,(shg.MultiPolygon,shg.Polygon)):
+				cutline_feature=geojson.Feature(geometry=cutline_feature)
+			elif isinstance(cutline_feature,DataSet):
+				cutline_feature=geojson.Feature(geometry=cutline_feature.geom)
+		gdal.Warp(out_path,self.ds,srcSRS=f'EPSG:{self.epsg}',dstSRS=f'EPSG:{out_epsg or self.epsg}',
+		          cutlineDSName=cutline_feature,**dict(dict(cropToCutline=not cutline_feature is None),**kwargs))
+		if return_as_ds: out=DataSet(out_path)
+		else: out=out_path
 		if destroy_after: self.ds=None
-		return ds
-
+		return out
+	
 	@property
 	def geo_info(self):
 		return self.transform,self.projection
-
+	
 	@property
 	def raster_sizes(self):
 		return self.ds.RasterXSize,self.ds.RasterYSize
-
+	
 	@classmethod
 	def from_array(cls,array,geo_info):
 		if isinstance(geo_info,str): geo_info=DataSet(geo_info)
 		return DataSet(array_to_ds(array,geo_info),array)
-
+	
 	@logger.trace()
 	def polygonize(self,driver_name,fpath,destroy_after=True,**kwargs):
 		datasource,ds_layer=polygonize(self.ds,driver_name,fpath,**kwargs)
@@ -181,7 +191,7 @@ class DataSet:
 			datasource=None
 		if destroy_after: self.ds=None
 		return datasource,ds_layer
-
+	
 	@logger.trace()
 	def generate_contours(self,val_ranges,driver_name,fpath,field_name='DN',
 	                      field_type=ogr.OFTReal,destroy_after=True):
@@ -193,8 +203,8 @@ class DataSet:
 			datasource=None
 		if destroy_after: self.ds=None
 		return datasource,ds_layer
-
-	@logger.trace()
+	
+	@logger.trace(skimpy=True)
 	def to_geotiff(self,filepath,no_data_value=-9999,dtype=gdal.GDT_Float32):
 		band=self.ds.GetRasterBand(1)
 		arr=band.ReadAsArray()
@@ -210,13 +220,47 @@ class DataSet:
 		outdata=None
 		band=None
 		ds=None
-
+		return filepath
+	
 	def scale_array(self,scaler):
 		scaled=scaler.fit_transform(self.array.reshape(-1,1))
 		scaled_band=scaled.reshape(self.array.shape)
 		out=self.from_array(scaled_band,self.geo_info)
 		self.ds=None
 		return out
+	
+	@logger.trace(skimpy=True)
+	def translate(self,options=None,format=None,
+	              outputType=gdalconst.GDT_Unknown,bandList=None,maskBand=None,
+	              width=0,height=0,widthPct=0.0,heightPct=0.0,
+	              xRes=0.0,yRes=0.0,
+	              creationOptions=None,srcWin=None,projWin=None,projWinSRS=None,strict=False,
+	              unscale=False,scaleParams=None,exponents=None,
+	              outputBounds=None,metadataOptions=None,
+	              outputSRS=None,GCPs=None,
+	              noData=None,rgbExpand=None,
+	              stats=False,rat=True,resampleAlg=None,
+	              callback=None,callback_data=None,destroy_after=True,out_path='',return_as_ds=True):
+		out_path=out_path or f"/vsimem/{uuid.uuid4()}"
+		gdal.Translate(out_path,self.ds,options=gdal.TranslateOptions(
+			options=options,format=format,outputType=outputType,bandList=bandList,maskBand=maskBand,width=width,height=height,
+			widthPct=widthPct,heightPct=heightPct,xRes=xRes,yRes=yRes,creationOptions=creationOptions,srcWin=srcWin,projWin=projWin,
+			projWinSRS=projWinSRS,strict=strict,unscale=unscale,scaleParams=scaleParams,exponents=exponents,outputBounds=outputBounds,
+			metadataOptions=metadataOptions,outputSRS=outputSRS,GCPs=GCPs,noData=noData,rgbExpand=rgbExpand,stats=stats,rat=rat,
+			resampleAlg=resampleAlg,callback=callback,callback_data=callback_data,
+		))
+		if return_as_ds: out=DataSet(out_path,name='translated')
+		else: out=out_path
+		if destroy_after: self.ds=None
+		return out
+	
+	@property
+	def wkt(self):
+		return get_geom_from_ds(self.ds).ExportToWkt()
+	
+	@property
+	def geom(self):
+		return shwkt.loads(self.wkt)
 
 @logger.trace(level=logging.DEBUG)
 def translate_tiff(input_tiff,output_tiff,translate_opts: gdal.TranslateOptions) -> str:
@@ -228,7 +272,7 @@ def translate_tiff(input_tiff,output_tiff,translate_opts: gdal.TranslateOptions)
 @logger.trace(level=logging.DEBUG)
 def rgb_to_geotiff(tiff_path,*band_paths,no_data_value=-9999,dtype=gdal.GDT_Float32,**warp_opts):
 	# logsup.logger.info('no_data_value: %s',no_data_value)
-	band_dss=[DataSet(path).do_warp(**warp_opts).generate_array() for path in band_paths]
+	band_dss=[DataSet(path).do_warp(**warp_opts) for path in band_paths]
 	band_arrays=[band_ds.array for band_ds in band_dss]
 	# for path in band_paths:
 	# 	step1=DataSet(path).do_warp(out_epsg=3857,srcNodata=-2000)  #
@@ -247,7 +291,7 @@ def rgb_to_geotiff(tiff_path,*band_paths,no_data_value=-9999,dtype=gdal.GDT_Floa
 	# 	options=['PHOTOMETRIC=RGBA','PROFILE=GeoTIFF',]
 	# else:
 	# 	raise NotImplementedError(f'Invalid number of input files - {len(band_paths)}.',dict(count=len(band_paths)))
-
+	
 	outdata=driver.Create(tiff_path,rows,cols,len(band_paths),dtype,options=options)
 	outdata.SetGeoTransform(band_dss[0].transform)  ##sets same geotransform as input
 	outdata.SetProjection(band_dss[0].projection)  ##sets same projection as input
@@ -258,14 +302,85 @@ def rgb_to_geotiff(tiff_path,*band_paths,no_data_value=-9999,dtype=gdal.GDT_Floa
 		raster_band.WriteArray(np.where(array==0,no_data_value,array))
 		if no_data_value is not False:
 			raster_band.SetNoDataValue(no_data_value)  ##if you want these values transparent
-
+	
 	outdata.FlushCache()  ##saves to disk!!
 	outdata=None
 	band=None
 	ds=None
-	pass
+	return tiff_path
 
 def get_mean_std_scale_params(stack: np.array,std_num=2):
 	mean=np.nanmean(stack)
 	std=np.nanstd(stack)
 	return [mean-std_num*std,mean+std_num*std]
+
+def GetExtent(gt,cols,rows):
+	''' Return list of corner coordinates from a geotransform
+
+		@type gt:   C{tuple/list}
+		@param gt: geotransform
+		@type cols:   C{int}
+		@param cols: number of columns in the dataset
+		@type rows:   C{int}
+		@param rows: number of rows in the dataset
+		@rtype:    C{[float,...,float]}
+		@return:   coordinates of each corner
+	'''
+	ext=[]
+	xarr=[0,cols]
+	yarr=[0,rows]
+	
+	for px in xarr:
+		for py in yarr:
+			x=gt[0]+(px*gt[1])+(py*gt[2])
+			y=gt[3]+(px*gt[4])+(py*gt[5])
+			ext.append([x,y])
+		# print(x,y)
+		
+		yarr.reverse()
+	return ext
+
+def ReprojectCoords(coords,src_srs,tgt_srs):
+	''' Reproject a list of x,y coordinates.
+
+		@type geom:     C{tuple/list}
+		@param geom:    List of [[x,y],...[x,y]] coordinates
+		@type src_srs:  C{osr.SpatialReference}
+		@param src_srs: OSR SpatialReference object
+		@type tgt_srs:  C{osr.SpatialReference}
+		@param tgt_srs: OSR SpatialReference object
+		@rtype:         C{tuple/list}
+		@return:        List of transformed [[x,y],...[x,y]] coordinates
+	'''
+	trans_coords=[]
+	transform=osr.CoordinateTransformation(src_srs,tgt_srs)
+	for x,y in coords:
+		x,y,z=transform.TransformPoint(x,y)
+		trans_coords.append([x,y])
+	return trans_coords
+
+def get_geo_extent(ds):
+	gt=ds.GetGeoTransform()
+	cols=ds.RasterXSize
+	rows=ds.RasterYSize
+	ext=GetExtent(gt,cols,rows)
+	
+	src_srs=osr.SpatialReference()
+	src_srs.ImportFromWkt(ds.GetProjection())
+	#tgt_srs=osr.SpatialReference()
+	#tgt_srs.ImportFromEPSG(4326)
+	tgt_srs=src_srs.CloneGeogCS()
+	
+	geo_ext=ReprojectCoords(ext,src_srs,tgt_srs)
+	return geo_ext
+
+def get_geom_from_ds(ds):
+	extent=get_geo_extent(ds)
+	ring=ogr.Geometry(ogr.wkbLinearRing)
+	image_polygon=ogr.Geometry(ogr.wkbPolygon)
+	for coors in extent:
+		ring.AddPoint(*coors)
+	ring.AddPoint(*ring.GetPoint())
+	# print(ring.GetPoint()[:-1])
+	image_polygon.AddGeometry(ring)
+	return image_polygon
