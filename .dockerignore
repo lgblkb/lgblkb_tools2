@@ -3,3 +3,4 @@ logs
 build
 dist
 lgblkb_tools.egg-info
+lgblkb_cache

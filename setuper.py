@@ -66,8 +66,8 @@ docker build -t lgblkb/s2base .
 def main():
 	deployer=Deployer()
 	# deployer.build_upload_pypi()
-	# deployer.build_s2_base()  #.push()
-	deployer.build_lgblkb_base()  #.push()
+	# deployer.build_s2_base().push()
+	# deployer.build_lgblkb_base().push()
 	# deployer.git_push(input('Git commit_message:\n') or 'Update')
 	return
 	run_cmd(f"""
