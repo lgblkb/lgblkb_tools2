@@ -2,5 +2,6 @@ logs
 .pytest_cache
 build
 dist
+s2base
 lgblkb_tools.egg-info
 lgblkb_cache
