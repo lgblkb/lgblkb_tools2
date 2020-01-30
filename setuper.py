@@ -4,7 +4,7 @@ import subprocess
 
 # from lgblkb_tools import logger
 # from lgblkb_tools.common import utils
-from setup import get_package_info
+# from setup import get_package_info
 
 #cc54c7b86b21c74409d32e50d15b6716398ce38f
 
@@ -17,9 +17,9 @@ class Deployer(object):
 		self.recent_docker_build=''
 		pass
 	
-	@property
-	def lgblkb_tools_version(self):
-		return get_package_info().version
+	# @property
+	# def lgblkb_tools_version(self):
+	# 	return get_package_info().version
 	
 	def build_upload_pypi(self):
 		run_cmd("""
@@ -29,11 +29,11 @@ pip install --no-cache-dir lgblkb-tools -U
 """)
 		return self
 	
-	def git_push(self,commit_message):
-		# utils.run_cmd(f"git add -A")
-		run_cmd(f'git commit -am "v{self.lgblkb_tools_version}: {commit_message}"')
-		run_cmd(f'git push')
-		return self
+	# def git_push(self,commit_message):
+	# 	# utils.run_cmd(f"git add -A")
+	# 	run_cmd(f'git commit -am "v{self.lgblkb_tools_version}: {commit_message}"')
+	# 	run_cmd(f'git push')
+	# 	return self
 	
 	def build_s2_base(self):
 		run_cmd("""
@@ -54,13 +54,13 @@ docker build -t lgblkb/s2base .
 		subprocess.run(f'docker push lgblkb/{image_name}',shell=True,check=True)
 		self.recent_docker_build=''
 	
-	def build_lgblkb_base(self):
-		# utils.run_cmd(f"""
-		subprocess.run(f"""
-		docker build --build-arg LGBLKB_TOOLS_VERSION="{'=='+self.lgblkb_tools_version}" -t lgblkb/base .
-		""",shell=True,check=True)
-		self.recent_docker_build='base'
-		return self
+	# def build_lgblkb_base(self):
+	# 	# utils.run_cmd(f"""
+	# 	subprocess.run(f"""
+	# 	docker build --build-arg LGBLKB_TOOLS_VERSION="{'=='+self.lgblkb_tools_version}" -t lgblkb/base .
+	# 	""",shell=True,check=True)
+	# 	self.recent_docker_build='base'
+	# 	return self
 
 # @logger.trace()
 def main():
