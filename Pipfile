@@ -5,10 +5,11 @@ verify_ssl = true
 
 [dev-packages]
 matplotlib = "*"
-geojsonio = "*"
 pytest = "*"
 fabric = "*"
 wheel = "*"
+twine = "*"
+bumpversion = "*"
 
 [packages]
 pandas = "*"

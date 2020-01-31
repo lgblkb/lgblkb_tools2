@@ -17,7 +17,6 @@ import shapely.wkt as shwkt
 from box import Box
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon
-
 from . import Folder,logger
 
 # import visvalingamwyatt as vw
