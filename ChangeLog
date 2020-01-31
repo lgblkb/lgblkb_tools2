@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+v1.0.63
+-------
+
+* Bump version: 1.0.62 → 1.0.63
+* Added dev packages to requirements
+* Updated requirements.txt
 * Cleaning the project
 
 v1.0.62
