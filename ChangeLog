@@ -1,0 +1,41 @@
+CHANGES
+=======
+
+v1.0.62
+-------
+
+* Bump version: 1.0.61 → 1.0.62
+* Updated requirements.txt and Pipfile
+
+v1.0.61
+-------
+
+* Bump version: 1.0.60 → 1.0.61
+* Updated requirements.txt
+* Removed staged build. on the way to completely remove Dockerfile soon
+* Added test Jenkinsfile
+* Removed copying of s2base directory into docker container
+* Created separate bumpversion config file
+
+v1.0.60
+-------
+
+* Bump version: 1.0.59 → 1.0.60
+* Added bumpversion
+* Switching to pipenv
+* Refactoring
+* Removing .idea from git
+* Added typing of session object Added check of session object. If it's not active (closed), the new session is created
+* Added ability to specify dtype of output geotiff
+* Added logger options to set 'propagate' boolean. Added ability to provide optional existing logger object
+* v1.0.6: Remove circus from dependencies
+* v1.0.5: Added merge\_dict to Added merge\_dict to common.utils and pinned requirements.txt
+* v1.0.5: Fixed bug when zipping directory. Added os.Pathlike to Folder
+* v1.0.3: Added ability to specify custom key value delimiter in generate\_name\_portions
+* v1.0.2: Update
+* Added files to git
+* Updated lgblkb-tools to 0.9
+* Added telegram\_notify
+* test commit with docker
+* added tools from previous version
+* added tools from previous version

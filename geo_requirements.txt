@@ -1,4 +1,0 @@
-shapely
-pyproj
-geojson
-geopandas

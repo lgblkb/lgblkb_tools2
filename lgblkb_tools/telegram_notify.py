@@ -46,7 +46,7 @@ egistic_notify=TheChat(r'-366778823')
 # 	egistic_notify_bot.send_message(chat_id=chat_id,text=text)
 
 def main():
-	egistic_notify.send_document(r'/home/lgblkb/PycharmProjects/Egistic/Scripts/tut_1.py')
+	egistic_notify.send_document(r'/home/lgblkb/PycharmProjects/lgblkb_tools2/Pipfile')
 	pass
 
 # updater=Updater(token)

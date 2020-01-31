@@ -74,7 +74,7 @@ def remove_redundants(polygons,redundancy_order=2.5,**kwargs):
 		# simple_logger.debug('y:\n%s',y)
 		# raise NotImplementedError
 		# simple_logger.debug('xy:\n%s',xy)
-
+		
 		g_interiors=list()
 		for g_interior in g.interiors:
 			gint=shg.Polygon(g_interior)
@@ -84,7 +84,7 @@ def remove_redundants(polygons,redundancy_order=2.5,**kwargs):
 			g_interiors.append(g_interior)
 		clean_g=shg.Polygon(g_ext,g_interiors)
 		candidates.append(clean_g)
-
+	
 	return candidates
 
 def get_crs(geojson_datum):
@@ -105,7 +105,7 @@ def plot_polygon(polygon: shg.Polygon,label=None,ax=None,name='',**kwargs):
 	if name:
 		x,y=polygon.exterior.xy
 		target_point_index=list(x).index(min(x))
-
+		
 		plt.text(x[target_point_index],y[target_point_index],s=name)
 	for i,p_i in enumerate(polygon.interiors):
 		plotter(p_i,'interior {}'.format(i))
@@ -142,7 +142,7 @@ def reproject_point(point,_in,_out,round_precision=None):
 		x,y=out_xy
 	else:
 		x,y=round(out_xy[0],round_precision),round(out_xy[1],round_precision)
-
+	
 	return shg.Point(x,y)
 
 def get_area(geom,in_epsg):
@@ -173,7 +173,7 @@ def clean_multipolygon(multipolygon: shg.MultiPolygon):
 			# else:
 			# 	tree[g1]=g1.difference(g2)
 			tree[geoms.index(g1)].append(g2)
-
+	
 	clean_polygons=list()
 	for shell_index,holes in tree.items():
 		try:
@@ -185,22 +185,22 @@ def clean_multipolygon(multipolygon: shg.MultiPolygon):
 			logger.debug('shell_index: %s',shell_index)
 			raise exc
 		# geoms.pop(shell_index)
-
+		
 		for x in holes: geoms.remove(x)
 		clean_polygons.append(p)
-
+	
 	# p=shg.Polygon(shg.LinearRing(geoms[shell_index].coords.xy),[shg.LinearRing(x.coords.xy) for x in holes])
 	# clean_polygons.append(p)
-
+	
 	# result=g1.difference(g2)
 	# simple_logger.info('result: %s',result)
 	# simple_logger.debug('tree:\n%s',tree)
-
+	
 	return shg.MultiPolygon([*clean_polygons,*geoms])
 
 class SpatialGeom:
 	__protected_members=['name','data','geom_obj','box']
-
+	
 	@classmethod
 	def from_geojson(cls,geojson_datum,crs_in=None,crs_out=4326,**kwargs):
 		if isinstance(geojson_datum,str):
@@ -230,7 +230,7 @@ class SpatialGeom:
 					'No info to infer from. Please, specify incoming coordinate reference system.')
 		cad_land.convert_crs(crs_in,crs_out)
 		return cad_land
-
+	
 	def convert_crs(self,_from: int,to=4326):
 		if self.geom_obj.is_empty:
 			print('Cannot convert empty shape.')
@@ -244,7 +244,7 @@ class SpatialGeom:
 		# 	return SpatialGeom(multi_polygon,redundancy_order=self.redundancy_order,
 		# 	                   name=self.name)
 		pass
-
+	
 	def __init__(self,geom_obj,name='',**kwargs):
 		"""
 
@@ -266,7 +266,7 @@ class SpatialGeom:
 					from shapely import geos
 					# geos.WKBWriter.defaults['include_srid']=True
 					geom_obj=shwkb.loads(geom_obj,hex=True)
-
+		
 		if isinstance(geom_obj,shg.Polygon): geom_obj=shg.MultiPolygon([geom_obj])
 		elif isinstance(geom_obj,np.ndarray):
 			geom_obj=shg.MultiPolygon([shg.Polygon(geom_obj)])
@@ -277,7 +277,7 @@ class SpatialGeom:
 		self.geom_obj: shg.MultiPolygon=geom_obj
 		self.data['with_holes']=max(self.do_for_each(lambda p:len(list(p.interiors))),default=0)!=0
 		pass
-
+	
 	def do_for_each(self,func,*args,**kwargs):
 		doer=lambda x:func(x,*args,**kwargs)
 		#if self.is_multipolygon:
@@ -285,14 +285,14 @@ class SpatialGeom:
 		for p in self.geom_obj:
 			out.append(doer(p))
 		return out
-
+	
 	# else:
 	# 	return [doer(self.geom_obj)]
-
+	
 	def show_on_geojsonio(self):
 		get_displayed=lambda obj:geojsonio.display(json.dumps(shg.mapping(obj)))
 		self.do_for_each(get_displayed)
-
+	
 	def plot(self,show=False,**kwargs):
 		if self.geom_obj.is_empty: return
 		# if ax is None: plot=plt.plot
@@ -305,41 +305,41 @@ class SpatialGeom:
 			plt.legend(loc='best')
 			plt.show()
 		return self
-
+	
 	def to_geojson(self,**kwargs):
 		return geojson.Feature(geometry=self.geom_obj,**kwargs)
-
+	
 	def __bool__(self):
 		return self.geom_obj.is_empty
-
+	
 	# else:
 	# 	plot_polygon(self.geom_obj,'Single polygon',**kwargs)
-
+	
 	def get_area(self,in_epsg=4326):
 		return get_area(self.geom_obj,in_epsg)
-
+	
 	def intersection(self,geom,name=None):
 		if isinstance(geom,SpatialGeom): geom=geom.geom_obj
 		return SpatialGeom(self.geom_obj.intersection(geom),name=name)
-
+	
 	def difference(self,geom,name=None):
 		if isinstance(geom,SpatialGeom): geom=geom.geom_obj
 		return SpatialGeom(self.geom_obj.difference(geom),name=name)
-
+	
 	def __getitem__(self,item):
 		return self.data[item]
-
+	
 	def __iter__(self):
 		return iter(self.data.keys())
-
+	
 	def __getattr__(self,item):
 		if item in self.__protected_members: return self.__getattribute__(item)
 		else: return self.data[item]
-
+	
 	@property
 	def bounding_box(self):
 		return SpatialGeom(shg.Polygon(self.geom_obj.envelope.exterior))
-
+	
 	def save(self,folder,filename=None,filepath=None):
 		if filepath is None: filepath=Folder(folder).get_filepath(filename or self.name or 'SpatialGeom')
 		if not os.path.splitext(filepath)[-1]: filepath=filepath+'.svg'
@@ -349,10 +349,10 @@ class SpatialGeom:
 		            frameon=None,metadata=None)
 		plt.clf()
 		return self
-
+	
 	def __str__(self):
 		return '{}: {}'.format(self.name,str(self.geom_obj))
-
+	
 	def buffer(self,distance,resolution=16,quadsegs=None,cap_style=shg.CAP_STYLE.round,
 	           join_style=shg.JOIN_STYLE.round,mitre_limit=5.0):
 		return self.__class__(self.geom_obj.buffer(distance,resolution=resolution,quadsegs=quadsegs,

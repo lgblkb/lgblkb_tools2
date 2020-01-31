@@ -121,3 +121,8 @@ test_files/configs.yaml
 test_files/configs_lgblkb.yaml
 /archived/
 .idea/*
+Dockerfile
+Dockerfile_old
+release.py
+tests/lgblkb_cache/
+.pytest_cache
