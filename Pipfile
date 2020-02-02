@@ -29,7 +29,6 @@ python-telegram-bot = "*"
 pyproj = "*"
 gdal = "==2.4.3"
 joblib = "*"
-geojsonio = "*"
 
 [requires]
 python_version = "3.6"
