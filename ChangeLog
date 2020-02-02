@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+v1.0.66
+-------
+
+* Bump version: 1.0.65 → 1.0.66
+* Updated requirements.txt
+* Added optional dependency geojsonio
+* Updated ChangeLog
+
 v1.0.65
 -------
 
