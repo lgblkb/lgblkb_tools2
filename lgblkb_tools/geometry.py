@@ -1,11 +1,10 @@
 import collections
+import itertools
 import json
 import os
 from functools import partial
 
 import geojson
-import geojsonio
-import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -17,8 +16,13 @@ import shapely.wkt as shwkt
 from box import Box
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon
+
 from . import Folder,logger
 
+try:
+	import geojsonio
+except ImportError:
+	pass
 # import visvalingamwyatt as vw
 
 geom_kz_coarse=r'POLYGON ((59.501953125 51.39920565355378, 51.50390625 52.50953477032727, 46.40625 50.875311142200765, '\
