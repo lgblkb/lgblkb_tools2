@@ -222,6 +222,24 @@ class DataSet:
 		ds=None
 		return filepath
 	
+	@logger.trace(skimpy=True)
+	def to_file(self,filepath,driver_name,no_data_value=-9999,dtype=gdal.GDT_Float32):
+		band=self.ds.GetRasterBand(1)
+		arr=band.ReadAsArray()
+		[cols,rows]=arr.shape
+		driver=gdal.GetDriverByName(driver_name)
+		outdata=driver.Create(filepath,rows,cols,1,dtype)
+		outdata.SetGeoTransform(self.transform)  ##sets same geotransform as input
+		outdata.SetProjection(self.projection)  ##sets same projection as input
+		outdata.GetRasterBand(1).WriteArray(np.where(np.isnan(arr),no_data_value,arr))
+		if no_data_value is not False:
+			outdata.GetRasterBand(1).SetNoDataValue(no_data_value)  ##if you want these values transparent
+		outdata.FlushCache()  ##saves to disk!!
+		outdata=None
+		band=None
+		ds=None
+		return filepath
+	
 	def scale_array(self,scaler):
 		scaled=scaler.fit_transform(self.array.reshape(-1,1))
 		scaled_band=scaled.reshape(self.array.shape)
