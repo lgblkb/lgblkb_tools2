@@ -209,7 +209,7 @@ def run_cmd(cmd,**kwargs):
 	else:
 		steps=cmd
 	for step in steps:
-		print('step: ',step,'\n############################################')
+		logger.debug('step: %s',step)
 		subprocess.run(step,**dict(dict(check=True,shell=True),**kwargs))
 
 def dict_merge(dct,merge_dct,add_keys=True):
