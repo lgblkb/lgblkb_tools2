@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+v1.0.69
+-------
+
+* Bump version: 1.0.68 → 1.0.69
+* Modified run\_cmd to have ability to accept list of cmds
+* Added to\_file generic exporter
+* Updated ChangeLog
+
 v1.0.68
 -------
 
