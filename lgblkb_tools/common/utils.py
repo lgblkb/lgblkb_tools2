@@ -203,10 +203,14 @@ def run_command(cmd):
 	for c in iter(lambda:process.stdout.read(1),b''):  # replace '' with b'' for Python 3
 		sys.stdout.write(c.decode(sys.stdout.encoding,errors='ignore'))
 
-def run_cmd(cmd):
-	logger.debug('cmd: %s',cmd)
-	result=subprocess.run(cmd,shell=True,check=True)
-	return result
+def run_cmd(cmd,**kwargs):
+	if isinstance(cmd,str):
+		steps=[cmd]
+	else:
+		steps=cmd
+	for step in steps:
+		print('step: ',step,'\n############################################')
+		subprocess.run(step,**dict(dict(check=True,shell=True),**kwargs))
 
 def dict_merge(dct,merge_dct,add_keys=True):
 	""" Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
