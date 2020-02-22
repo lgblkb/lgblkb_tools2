@@ -30,6 +30,8 @@ pyproj = "*"
 gdal = "<=2.4.3"
 joblib = "*"
 scipy = "*"
+opencv-python = "*"
+geopandas = "*"
 
 [requires]
 python_version = "3.6"
