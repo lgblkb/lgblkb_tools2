@@ -27,8 +27,9 @@ checksumdir = "*"
 colorlog = "*"
 python-telegram-bot = "*"
 pyproj = "*"
-gdal = "==2.4.3"
+gdal = "<=2.4.3"
 joblib = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.6"
