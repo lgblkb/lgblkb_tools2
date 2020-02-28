@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Switched to gitchangelog. [lgblkb]
 - Switched to semantic-release. [lgblkb]
 - Updated requirements.txt. [lgblkb]
 - Updated requirements.txt. [lgblkb]

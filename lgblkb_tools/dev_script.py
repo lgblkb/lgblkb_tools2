@@ -24,6 +24,7 @@ def publish():
 	run_cmd('poetry check')
 	export_reqs()
 	version_patch()
+	run_cmd('gitchangelog > ChangeLog')
 	steps=list()
 	steps.append('poetry publish --build')
 	run_cmd(steps)

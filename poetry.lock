@@ -152,6 +152,29 @@ version = "4.4.1"
 
 [[package]]
 category = "main"
+description = "The dynamic configurator for your Python Project"
+name = "dynaconf"
+optional = false
+python-versions = "*"
+version = "2.2.2"
+
+[package.dependencies]
+click = "<=7.0"
+python-box = "<4.0.0"
+python-dotenv = "<=0.10.3"
+toml = "<=0.10.0"
+
+[package.extras]
+all = ["redis", "pyyaml", "configobj", "hvac"]
+configobj = ["configobj"]
+ini = ["configobj"]
+redis = ["redis"]
+toml = ["toml"]
+vault = ["hvac"]
+yaml = ["pyyaml"]
+
+[[package]]
+category = "main"
 description = "Fiona reads and writes spatial data files"
 name = "fiona"
 optional = false
@@ -433,12 +456,11 @@ category = "main"
 description = "Advanced Python dictionaries with dot notation access"
 name = "python-box"
 optional = false
-python-versions = ">=3.6"
-version = "4.2.0"
+python-versions = "*"
+version = "3.4.6"
 
-[package.dependencies]
-"ruamel.yaml" = "*"
-toml = "*"
+[package.extras]
+testing = ["pytest", "coverage (>=3.6)", "pytest-cov"]
 
 [[package]]
 category = "main"
@@ -450,6 +472,17 @@ version = "2.8.1"
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+category = "main"
+description = "Add .env support to your django/flask apps in development and deployments"
+name = "python-dotenv"
+optional = false
+python-versions = "*"
+version = "0.10.3"
+
+[package.extras]
+cli = ["click (>=5.0)"]
 
 [[package]]
 category = "main"
@@ -646,7 +679,7 @@ gdal = []
 vectorize = []
 
 [metadata]
-content-hash = "7b69f1a92969de6d564f91078a90d004c016beb3b49cdfdf2d57484cac1d4b74"
+content-hash = "ee4e261e2968ddcb92f525754826ef10375554a7048fd74c9cbc9ad74b11e53b"
 python-versions = "^3.6.9"
 
 [metadata.files]
@@ -750,6 +783,10 @@ cycler = [
 decorator = [
     {file = "decorator-4.4.1-py2.py3-none-any.whl", hash = "sha256:5d19b92a3c8f7f101c8dd86afd86b0f061a8ce4540ab8cd401fa2542756bce6d"},
     {file = "decorator-4.4.1.tar.gz", hash = "sha256:54c38050039232e1db4ad7375cfce6748d7b41c29e95a081c8a6d2c30364a2ce"},
+]
+dynaconf = [
+    {file = "dynaconf-2.2.2-py2.py3-none-any.whl", hash = "sha256:3cfc1ad7efae08b9cf91d81043a3230175e74e01157d875ce5ec6709bf4e6b9d"},
+    {file = "dynaconf-2.2.2.tar.gz", hash = "sha256:4bac78b432e090d8ed66f1c23fb32e03ca91a590bf0a51ac36137e0e45ac31ca"},
 ]
 fiona = [
     {file = "Fiona-1.8.13.post1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:6d6200a64f0f6fad431a767dd2da62706bf9f683be77bb157b6d0459bb263b7f"},
@@ -976,12 +1013,16 @@ pytest = [
     {file = "pytest-5.3.5.tar.gz", hash = "sha256:0d5fe9189a148acc3c3eb2ac8e1ac0742cb7618c084f3d228baaec0c254b318d"},
 ]
 python-box = [
-    {file = "python-box-4.2.0.tar.gz", hash = "sha256:4b4242762c669d575cfe43893610fa77727ae2035d231dbd98fe24b7ac222806"},
-    {file = "python_box-4.2.0-py3-none-any.whl", hash = "sha256:f9b74528d9fc2a574202993ea6f2feaae7fd34c7dce21175047eecbb022322b1"},
+    {file = "python-box-3.4.6.tar.gz", hash = "sha256:694a7555e3ff9fbbce734bbaef3aad92b8e4ed0659d3ed04d56b6a0a0eff26a9"},
+    {file = "python_box-3.4.6-py2.py3-none-any.whl", hash = "sha256:a71d3dc9dbaa34c8597d3517c89a8041bd62fa875f23c0f3dad55e1958e3ce10"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
     {file = "python_dateutil-2.8.1-py2.py3-none-any.whl", hash = "sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"},
+]
+python-dotenv = [
+    {file = "python-dotenv-0.10.3.tar.gz", hash = "sha256:f157d71d5fec9d4bd5f51c82746b6344dffa680ee85217c123f4a0c8117c4544"},
+    {file = "python_dotenv-0.10.3-py2.py3-none-any.whl", hash = "sha256:debd928b49dbc2bf68040566f55cdb3252458036464806f4094487244e2a4093"},
 ]
 python-log-indenter = [
     {file = "python_log_indenter-0.9-py3-none-any.whl", hash = "sha256:25bfdb28dc8eac586ac15d19a0e4374b0deb9cbcf1208c6475388c457c1e1ab4"},
