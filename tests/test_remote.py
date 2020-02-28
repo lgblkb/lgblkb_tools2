@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 
-import diskcache
+# import diskcache
 from fabric.runners import Result
 from typing import Union
 
@@ -10,7 +10,7 @@ from invoke import Responder
 from lgblkb_tools import logger,Folder
 from fabric import Connection
 
-cache=diskcache.Cache(Folder('lgblkb_cache').path)
+# cache=diskcache.Cache(Folder('lgblkb_cache').path)
 
 # noinspection PyAbstractClass
 class RemoteConnection(RecursiveProxy):
