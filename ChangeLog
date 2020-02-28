@@ -4,6 +4,11 @@ Changelog
 
 (unreleased)
 ------------
+- Bump version: 1.1.3 → 1.1.4. [lgblkb]
+- Updated requirements.txt. [lgblkb]
+- Updated requirements.txt. [lgblkb]
+- Updated dev_script.py. [lgblkb]
+- Fixed dynaconf compatibility. [lgblkb]
 - Switched to gitchangelog. [lgblkb]
 - Switched to semantic-release. [lgblkb]
 - Updated requirements.txt. [lgblkb]
