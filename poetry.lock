@@ -642,10 +642,11 @@ testing = ["jaraco.itertools", "func-timeout"]
 
 [extras]
 db = []
+gdal = []
 vectorize = []
 
 [metadata]
-content-hash = "37eb301a2f9b54d5aa3557da90dba1054b0d918f4caaea236354d72b9813a40a"
+content-hash = "7b69f1a92969de6d564f91078a90d004c016beb3b49cdfdf2d57484cac1d4b74"
 python-versions = "^3.6.9"
 
 [metadata.files]
