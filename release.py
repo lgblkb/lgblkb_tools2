@@ -19,7 +19,7 @@ def main():
 	steps.append('git commit -am "Updated requirements.txt" || true')
 	steps.append('bumpversion patch')
 	steps.append('poetry build')
-	steps.append('gitchangelog > ChangeLog')
+	steps.append('gitchangelog > CHANGELOG.txt')
 	steps.append('git commit -am "Updated ChangeLog" || true')
 	steps.append(f'poetry publish -u {settings.PYPI.username} -p {settings.PYPI.password}')
 	steps.append('poetry update lgblkb-tools')
