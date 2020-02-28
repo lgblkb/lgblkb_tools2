@@ -123,6 +123,7 @@ test_files/configs_lgblkb.yaml
 .idea/*
 Dockerfile
 Dockerfile_old
-release.py
 tests/lgblkb_cache/
 .pytest_cache
+.secrets.yaml
+lgblkb_cache/
