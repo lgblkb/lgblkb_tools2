@@ -1,7 +1,7 @@
 import os
 from abc import abstractmethod
 
-import joblib
+# import joblib
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
 from sqlalchemy import Column,Integer,Text
@@ -52,17 +52,17 @@ class Reconnectable(InfoBase):
 		logger.debug('filepath: %s',filepath)
 		return filepath
 	
-	@classmethod
-	def from_dump(cls,folder=None,filename='',filepath=''):
-		filepath=cls.get_dump_filepath(folder=folder,filename=filename,filepath=filepath)
-		assert os.path.exists(filepath),f'Filepath {filepath} does not exist.'
-		logger.debug('Loading object from dump file.')
-		return joblib.load(filepath)
+	# @classmethod
+	# def from_dump(cls,folder=None,filename='',filepath=''):
+	# 	filepath=cls.get_dump_filepath(folder=folder,filename=filename,filepath=filepath)
+	# 	assert os.path.exists(filepath),f'Filepath {filepath} does not exist.'
+	# 	logger.debug('Loading object from dump file.')
+	# 	return joblib.load(filepath)
 	
-	def to_dump(self,folder=None,filename='',filepath=''):
-		filepath=self.get_dump_filepath(folder=folder,filename=filename,filepath=filepath)
-		joblib.dump(self,filepath)
-		return self
+	# def to_dump(self,folder=None,filename='',filepath=''):
+	# 	filepath=self.get_dump_filepath(folder=folder,filename=filename,filepath=filepath)
+	# 	joblib.dump(self,filepath)
+	# 	return self
 
 class KeysBase(Reconnectable):
 	primary_keys=['id']
