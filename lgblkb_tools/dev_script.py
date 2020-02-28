@@ -27,5 +27,6 @@ def publish():
 	run_cmd('gitchangelog > ChangeLog')
 	steps=list()
 	steps.append('poetry publish --build')
+	steps.append('poetry update')
 	run_cmd(steps)
 	
