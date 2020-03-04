@@ -14,7 +14,6 @@ geojson = "^2.5.0"
 shapely = "^1.7.0"
 python-log-indenter = "^0.9"
 wrapt = "^1.12.0"
-checksumdir = "^1.1.8"
 colorlog = "^4.1.0"
 python-telegram-bot = "^12.4.2"
 pyproj = "^2.5.0"
@@ -31,6 +30,7 @@ bumpversion = "^0.5.3"
 gitchangelog = "^3.0.4"
 invoke = "^1.4.1"
 pandas = "<1.0.0"
+checksumdir = "^1.1.7"
 
 
 [tool.poetry.extras]

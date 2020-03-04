@@ -13,7 +13,7 @@ def run_cmd(commands,**kwargs):
 def main():
 	steps=list()
 	steps.append('pytest .')
-	steps.append('rm -r dist build || true ')
+	steps.append('rm -r dist || true ')
 	steps.append('poetry update')
 	steps.append('poetry export -f requirements.txt > requirements.txt || true')
 	steps.append('git commit -am "Updated requirements.txt" || true')
