@@ -1,4 +1,3 @@
-import wrapt
 import functools
 import glob
 import os
@@ -6,8 +5,10 @@ import shutil
 import zipfile
 from datetime import datetime
 from typing import Callable
+
 from box import Box
 from checksumdir import dirhash
+
 from . import logger
 
 get_name=lambda some_path:os.path.splitext(os.path.basename(some_path))[0]
@@ -216,9 +217,9 @@ class Folder(os.PathLike):
 		
 		create_zipfile(self.path,zip_filepath)
 		return zip_filepath
-	
+
 	@logger.trace(skimpy=True)
-	def unzip(self,zip_filepath,create_subdir=True):
+	def unzip(self, zip_filepath, create_subdir=True):
 		# assert self.reactive,f'Folder {self.path} is not reactive'
 		# if save_path_formatter is None: save_path_formatter=lambda x:x
 		# zip_path=[zip_filepath,
@@ -228,12 +229,14 @@ class Folder(os.PathLike):
 		# zip_path=get_existing_path(zip_path)
 		# assert not os.path.isdir(zip_path),f'The folder "{zip_filepath}" cannot be unzipped.'
 		if create_subdir:
-			zipfilename=os.path.splitext(zip_filepath)[0]
-			dst_folder_path=self.create(zipfilename).path
+			zipfilename = os.path.splitext(Path(zip_filepath).name)[0]
+			# logger.debug('zipfilename: %s',zipfilename)
+			dst_folder_path = self.create(zipfilename).path
+		# logger.debug('dst_folder_path: %s',dst_folder_path)
 		else:
-			dst_folder_path=self.path
+			dst_folder_path = self.path
 		if not self.reactive: return self._inherit_class(dst_folder_path)
-		shutil.unpack_archive(zip_filepath,dst_folder_path,'zip')
+		shutil.unpack_archive(zip_filepath, dst_folder_path, 'zip')
 		return self._inherit_class(dst_folder_path)
 	
 	@logger.trace(skimpy=True)
