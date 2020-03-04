@@ -4,6 +4,11 @@ Changelog
 
 (unreleased)
 ------------
+- Bump version: 1.1.7 → 1.1.8. [lgblkb]
+- Updated requirements.txt. [lgblkb]
+- Fixed bug with unzipping using subdirs. [lgblkb]
+- Fixed bug with unzipping using subdirs. [lgblkb]
+- Updated ChangeLog. [lgblkb]
 - Bump version: 1.1.6 → 1.1.7. [lgblkb]
 - Updated requirements.txt. [lgblkb]
 - Updated ChangeLog. [lgblkb]
