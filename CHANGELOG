@@ -4,6 +4,11 @@ Changelog
 
 (unreleased)
 ------------
+- Bump version: 1.1.10 → 1.1.11. [lgblkb]
+- Updated requirements.txt. [lgblkb]
+- Made gdal optional. [lgblkb]
+- Update requirements.txt. [Dias]
+- Updated ChangeLog. [lgblkb]
 - Bump version: 1.1.9 → 1.1.10. [lgblkb]
 - Updated requirements.txt. [lgblkb]
 - Updated gdal_datasets.py. [lgblkb]
