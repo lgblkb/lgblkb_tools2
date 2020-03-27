@@ -17,7 +17,6 @@ wrapt = "^1.12.0"
 colorlog = "^4.1.0"
 python-telegram-bot = "^12.4.2"
 pyproj = "^2.5.0"
-gdal = ">=2.4.2, <=2.4.3"
 geopandas = "^0.7.0"
 opencv-python = "^4.2.0"
 scipy = "^1.4.1"
@@ -34,8 +33,8 @@ checksumdir = "^1.1.7"
 
 
 [tool.poetry.extras]
-gdal=["gdal<=2.4.3"]
-vectorize=["gdal<=2.4.3","geopandas=^0.7.0","opencv-python=^4.2.0","scipy=^1.4.1",]
+gdal=["gdal==2.4.2"]
+vectorize=["gdal==2.4.2","geopandas=^0.7.0","opencv-python=^4.2.0","scipy=^1.4.1",]
 db=["geoalchemy2=^0.6.3","sqlalchemy=^1.3.13"]
 
 [tool.poetry.dev-dependencies]
