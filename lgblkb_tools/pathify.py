@@ -4,7 +4,7 @@ import os
 import shutil
 import zipfile
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PosixPath
 from typing import Callable
 
 from box import Box
@@ -116,7 +116,8 @@ def _get_name_parts_from_depth(path, include_depth):
 class Folder(os.PathLike):
 
     def __init__(self, path='', reactive=True, assert_exists=False):
-        if isinstance(path, Folder): path = path.path
+        if isinstance(path, PosixPath):
+            path = str(path)
         path = os.path.abspath(os.path.normpath(path))
         if self._is_file(path): path = get_parent_dir(path)
         if not self._exists(path):
@@ -151,7 +152,8 @@ class Folder(os.PathLike):
                                                         datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         assert parts, 'Nothing is provided to create filepath.'
 
-        output_path = os.path.join(self.path, delim.join(map(str, parts)).replace(' ', delim) + ext)
+        # output_path = os.path.join(self.path, delim.join(map(str, parts)).replace(' ', delim) + ext)
+        output_path = os.path.join(self.path, delim.join(map(str, parts)) + ext)
         if iterated:
             return create_iterated_path(output_path)
         else:
@@ -284,7 +286,9 @@ class Folder(os.PathLike):
 
         :rtype: Folder
         """
-        dst_folder_path = self._inherit_class(dst_folder).get_filepath(new_name or self.name)
+        new_name = new_name or self.name
+        dst_folder_path = self._inherit_class(dst_folder).get_filepath(new_name)
+        
         delete_dst = lambda: shutil.rmtree(dst_folder_path, ignore_errors=True)
         resulter = lambda: self._class(dst_folder_path)
 
