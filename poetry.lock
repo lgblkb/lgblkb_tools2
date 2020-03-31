@@ -506,7 +506,7 @@ description = "We have made you a wrapper you can't refuse"
 name = "python-telegram-bot"
 optional = false
 python-versions = "*"
-version = "12.4.2"
+version = "12.5.1"
 
 [package.dependencies]
 certifi = "*"
@@ -1029,8 +1029,8 @@ python-log-indenter = [
     {file = "python_log_indenter-0.9.zip", hash = "sha256:9d2c0f79f07649b21efce98a3f508a8bd951d933d849fee400f1f958ac0665c9"},
 ]
 python-telegram-bot = [
-    {file = "python-telegram-bot-12.4.2.tar.gz", hash = "sha256:0a97cbca638f949582b4ee326170d2f8d7f4bf559a4e511132bb2203623e04ad"},
-    {file = "python_telegram_bot-12.4.2-py2.py3-none-any.whl", hash = "sha256:d3cffd020af4094d07c11783f875e5c682072ba7f5bc21ce89ff0222f4e6d742"},
+    {file = "python-telegram-bot-12.5.1.tar.gz", hash = "sha256:6d69fb04dc8d83e01cb25a0d83aaa2a1a4b7d5b14cd38b9f8922a567b4a4a510"},
+    {file = "python_telegram_bot-12.5.1-py2.py3-none-any.whl", hash = "sha256:af36fbf051415ded8b2633f27b71d292efcd85d58a647a1f138db191380144ff"},
 ]
 pytz = [
     {file = "pytz-2019.3-py2.py3-none-any.whl", hash = "sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d"},
