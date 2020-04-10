@@ -4,6 +4,11 @@ Changelog
 
 (unreleased)
 ------------
+- Bump version: 1.1.12 → 1.1.13. [lgblkb]
+- Updated requirements.txt. [lgblkb]
+- Added r() and nr() to Folder to quickly switch between reactive and
+  non-reactive behavior. [lgblkb]
+- Updated ChangeLog. [lgblkb]
 - Bump version: 1.1.11 → 1.1.12. [lgblkb]
 - Updated requirements.txt. [lgblkb]
 - Updated lgblkb_tools. [lgblkb]
