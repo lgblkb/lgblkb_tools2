@@ -25,7 +25,7 @@ def main():
 	steps.append('git commit -am "Updated ChangeLog" || true')
 	steps.append(f'poetry publish -u {settings.PYPI.username} -p {settings.PYPI.password}')
 	steps.append('poetry update lgblkb-tools')
-	steps.append('git push')
+	# steps.append('git push')
 	
 	# steps.append('pip install lgblkb-tools -U')
 	
