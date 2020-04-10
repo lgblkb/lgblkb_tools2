@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Bump version: 1.1.13 → 1.1.14. [lgblkb]
+- Updated requirements.txt. [lgblkb]
+- Added Plotter to lgblkb_tools. [lgblkb]
+- Added GdalMan to lgblkb_tools. [lgblkb]
+- Fix format warnings. [lgblkb]
+- Updated ChangeLog. [lgblkb]
 - Bump version: 1.1.12 → 1.1.13. [lgblkb]
 - Updated requirements.txt. [lgblkb]
 - Added r() and nr() to Folder to quickly switch between reactive and
