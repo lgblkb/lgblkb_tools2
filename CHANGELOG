@@ -4,6 +4,9 @@ Changelog
 
 (unreleased)
 ------------
+- Bump version: 1.1.14 → 1.1.15. [lgblkb]
+- Cleanup and optimize imports. [lgblkb]
+- Updated ChangeLog. [lgblkb]
 - Bump version: 1.1.13 → 1.1.14. [lgblkb]
 - Updated requirements.txt. [lgblkb]
 - Added Plotter to lgblkb_tools. [lgblkb]
