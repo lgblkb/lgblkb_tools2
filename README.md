@@ -8,11 +8,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-You can stick to using pip and venv/virtualenv, but I recommend using pipenv instead. 
-Pipenv is amazing. [Check it out](https://github.com/pypa/pipenv). 
+What things you need to install the software and how to install them.
+
 ```
-pipenv # for local development 
+poetry # for local development 
 ```
 
 ### Installing
