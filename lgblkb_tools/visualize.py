@@ -1,9 +1,7 @@
 import itertools as it
+
 import matplotlib.pyplot as plt
-from lgblkb_tools import logger, Folder
 import numpy as np
-import pandas as pd
-import geopandas as gpd
 
 
 class Plotter(object):

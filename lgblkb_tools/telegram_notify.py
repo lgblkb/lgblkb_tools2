@@ -1,28 +1,23 @@
-import os
-import numpy as np
-import pandas as pd
-import itertools
-import collections
-from telegram.ext import Updater,InlineQueryHandler,CommandHandler
-import requests
-import re
 from telegram import Bot
 
-egistic_notify_bot=Bot(r'883796622:AAE4eSIVACAIph2l_8124OhilKdRMQMZ1gY')
+egistic_notify_bot = Bot(r'883796622:AAE4eSIVACAIph2l_8124OhilKdRMQMZ1gY')
+
 
 class TheChat(object):
-	
-	def __init__(self,chat_id,bot=None):
-		self.chat_id=chat_id
-		self.bot=bot or egistic_notify_bot
-	
-	def send_message(self,message):
-		return self.bot.send_message(chat_id=self.chat_id,text=message)
-	
-	def send_document(self,filepath):
-		return self.bot.send_document(chat_id=self.chat_id,document=open(filepath,'rb'))
+    
+    def __init__(self, chat_id, bot=None):
+        self.chat_id = chat_id
+        self.bot = bot or egistic_notify_bot
+    
+    def send_message(self, message):
+        return self.bot.send_message(chat_id=self.chat_id, text=message)
+    
+    def send_document(self, filepath):
+        return self.bot.send_document(chat_id=self.chat_id, document=open(filepath, 'rb'))
 
-egistic_notify=TheChat(r'-366778823')
+
+egistic_notify = TheChat(r'-366778823')
+
 
 # def get_url():
 # 	contents=requests.get('https://random.dog/woof.json').json()
@@ -46,8 +41,9 @@ egistic_notify=TheChat(r'-366778823')
 # 	egistic_notify_bot.send_message(chat_id=chat_id,text=text)
 
 def main():
-	egistic_notify.send_document(r'/home/lgblkb/PycharmProjects/lgblkb_tools2/Pipfile')
-	pass
+    egistic_notify.send_document(r'/home/lgblkb/PycharmProjects/lgblkb_tools2/Pipfile')
+    pass
+
 
 # updater=Updater(token)
 # dp=updater.dispatcher
@@ -55,5 +51,5 @@ def main():
 # updater.start_polling()
 # updater.idle()
 
-if __name__=='__main__':
-	main()
+if __name__ == '__main__':
+    main()

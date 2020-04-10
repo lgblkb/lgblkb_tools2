@@ -1,17 +1,17 @@
-import dateutil.parser
 import collections
+import functools
 import hashlib
 import multiprocessing as mp
-import functools
 import os
 import signal
 import subprocess
 import sys
 import time
+from datetime import datetime, timedelta, date
 from typing import Sized
 
 import dateutil
-from datetime import datetime, timedelta, date
+import dateutil.parser
 
 from .. import logger
 
