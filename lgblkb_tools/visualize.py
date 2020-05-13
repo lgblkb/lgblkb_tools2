@@ -5,66 +5,120 @@ import numpy as np
 
 
 class Plotter(object):
-    def __init__(self, *images, **plot_kwargs):
-        self.image_data = list()
-        if images:
-            self.add_images(*images).plot(**plot_kwargs)
+    def __init__(self, *objs, axis_off=True, **plot_kwargs):
+        self.data = list()
+        self.axis_off = axis_off
+        if objs:
+            self.add_plots(*objs).plot(**plot_kwargs)
         pass
     
-    def add_image(self, image, **plot_kwargs):
-        self.image_data.append(dict(image=image, plot_kwargs=plot_kwargs))
+    def _add_obj(self, obj, ax_callback, plot_kwargs, **kwargs):
+        self.data.append(Box(obj=obj, plot_kwargs=plot_kwargs, ax_callback=ax_callback, **kwargs))
         return self
     
-    def add_images(self, *images):
-        for image in images:
-            self.add_image(image)
-        return self
+    # region Front:
+    def add_image(self, obj=None, ax_callback=None, **plot_kwargs):
+        return self._add_obj(obj, ax_callback, plot_kwargs, as_image=True, single=True)
+    
+    def add_images(self, obj=None, ax_callback=None, **plot_kwargs):
+        return self._add_obj(obj, ax_callback, plot_kwargs, as_image=True, single=False)
+    
+    def add_plot(self, obj=None, ax_callback=None, **plot_kwargs):
+        return self._add_obj(obj, ax_callback, plot_kwargs, as_image=False, single=True)
+    
+    def add_plots(self, obj=None, ax_callback=None, **plot_kwargs):
+        return self._add_obj(obj, ax_callback, plot_kwargs, as_image=False, single=False)
+    
+    # endregion
     
     @staticmethod
-    def get_grid_dims(images_count, nrows=None, ncols=None):
-        col_count = np.sqrt(images_count * 16 / 9)
+    def get_grid_dims(obj_count, nrows=None, ncols=None):
+        col_count = np.sqrt(obj_count * 16 / 9)
         if nrows is None:
             if ncols:
-                nrows = max(1, np.ceil(images_count / ncols))
+                nrows = max(1, np.ceil(obj_count / ncols))
             else:
-                nrows = max(1, np.round(images_count / col_count))
+                nrows = max(1, np.round(obj_count / col_count))
         if ncols is None:
-            ncols = np.ceil(images_count / nrows)
+            ncols = np.ceil(obj_count / nrows)
         
         pair = list(map(int, [nrows, ncols]))
         # logger.debug('nrows,ncols for %s images: %s',images_count,pair)
         return pair
     
-    def plot(self, show=True, overlay=False, **subplot_kwargs):
-        if overlay:
-            nrows, ncols = 1, 1
+    def plot(self, overlay=False, nrows_cols=None, horizontal=True, lbrtwh=(), **subplot_kwargs):
+        if nrows_cols is None:
+            if overlay:
+                nrows, ncols = 1, 1
+            else:
+                nrows = subplot_kwargs.pop('nrows', None)
+                ncols = subplot_kwargs.pop('ncols', None)
+                nrows, ncols = self.get_grid_dims(len(self.data), nrows=nrows, ncols=ncols)
+                if len(self.data) > nrows * ncols:
+                    raise ValueError(
+                        f'Insufficient number of axes ({nrows * ncols}) for {len(self.data)} objects.')
         else:
-            nrows = subplot_kwargs.pop('nrows', None)
-            ncols = subplot_kwargs.pop('ncols', None)
-            nrows, ncols = self.get_grid_dims(len(self.image_data), nrows=nrows, ncols=ncols)
-            if len(self.image_data) > nrows * ncols:
-                raise ValueError(f'Insufficient number of axes ({nrows * ncols}) for {len(self.image_data)} images.')
-        # logger.debug('nrows: %s',nrows)
-        # logger.debug('ncols: %s',ncols)
+            nrows, ncols = nrows_cols
         fig, axs = plt.subplots(nrows, ncols, **subplot_kwargs)
         if nrows * ncols == 1:
             axs = [axs]
         else:
-            axs = axs.flatten()
-        # logger.debug('len(axs): %s',len(axs))
-        # logger.debug('len(self.image_data): %s',len(self.image_data))
-        for ax, image_datum in it.zip_longest(axs, self.image_data, fillvalue=axs[0] if overlay else None):
-            if image_datum is None:
+            if horizontal:
+                axs = axs.flatten()
+            else:
+                axs = axs.T.flatten()
+        
+        for ax, datum in it.zip_longest(axs, self.data, fillvalue=axs[0] if overlay else None):
+            if self.axis_off: ax.set_axis_off()
+            if datum is None:
                 fig.delaxes(ax)
                 continue
-            image = image_datum['image']
-            ax.imshow(image, **image_datum['plot_kwargs'])
-        fig.set_size_inches(13, 8)
+            obj = datum.obj
+            if obj is not None:
+                if datum.as_image:
+                    if datum.single:
+                        assert isinstance(datum.plot_kwargs, dict)
+                        ax.imshow(obj, **datum.plot_kwargs)
+                    else:
+                        objs = obj
+                        if isinstance(datum.plot_kwargs, dict): datum.plot_kwargs = [datum.plot_kwargs]
+                        for obj, plot_kwargs in it.zip_longest(objs, datum.plot_kwargs,
+                                                               fillvalue=datum.plot_kwargs[-1]):
+                            ax.imshow(obj, **plot_kwargs)
+                else:
+                    if datum.single:
+                        if len(obj.shape) == 2:
+                            assert isinstance(datum.plot_kwargs, dict)
+                            ax.plot(*obj, **datum.plot_kwargs)
+                        else:
+                            ax.plot(obj, **datum.plot_kwargs)
+                    else:
+                        objs = obj
+                        if isinstance(datum.plot_kwargs, dict): datum.plot_kwargs = [datum.plot_kwargs]
+                        for obj, plot_kwargs in it.zip_longest(objs, datum.plot_kwargs,
+                                                               fillvalue=datum.plot_kwargs[-1]):
+                            if len(obj.shape) == 2:
+                                ax.plot(*obj, **plot_kwargs)
+                            else:
+                                ax.plot(obj, **plot_kwargs)
+            
+            if datum.ax_callback is not None: datum.ax_callback(ax)
         
-        if show:
-            plt.tight_layout()
-            plt.show()
+        fig.set_size_inches(18, 10)
+        if lbrtwh:
+            plt.subplots_adjust(*lbrtwh)
         return self
+    
+    def show(self, *args, **kwargs):
+        return plt.show(*args, **kwargs)
+    
+    def save(self, savepath, *args, **kwargs):
+        plt.savefig(savepath, *args, **kwargs)
+        plt.close()
+        return self
+    
+    def __len__(self):
+        return len(self.data)
 
 
 def main():
