@@ -2,6 +2,7 @@ import itertools as it
 
 import matplotlib.pyplot as plt
 import numpy as np
+from box import Box
 
 
 class Plotter(object):
@@ -109,7 +110,8 @@ class Plotter(object):
             plt.subplots_adjust(*lbrtwh)
         return self
     
-    def show(self, *args, **kwargs):
+    @staticmethod
+    def show(*args, **kwargs):
         return plt.show(*args, **kwargs)
     
     def save(self, savepath, *args, **kwargs):
