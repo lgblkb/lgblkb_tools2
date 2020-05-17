@@ -6,11 +6,14 @@ from box import Box
 
 
 class Plotter(object):
-    def __init__(self, *objs, axis_off=True, **plot_kwargs):
+    def __init__(self, *objs, axis_off=True, as_images=True, **plot_kwargs):
         self.data = list()
         self.axis_off = axis_off
         if objs:
-            self.add_plots(*objs).plot(**plot_kwargs)
+            if as_images:
+                self.add_images(*objs).plot(**plot_kwargs).show()
+            else:
+                self.add_plots(*objs).plot(**plot_kwargs).show()
         pass
     
     def _add_obj(self, obj, ax_callback, plot_kwargs, **kwargs):
@@ -21,14 +24,18 @@ class Plotter(object):
     def add_image(self, obj=None, ax_callback=None, **plot_kwargs):
         return self._add_obj(obj, ax_callback, plot_kwargs, as_image=True, single=True)
     
-    def add_images(self, obj=None, ax_callback=None, **plot_kwargs):
-        return self._add_obj(obj, ax_callback, plot_kwargs, as_image=True, single=False)
+    def add_images(self, *objs, ax_callback=None, **plot_kwargs):
+        for obj in objs:
+            self.add_image(obj, ax_callback=ax_callback, **plot_kwargs)
+        return self
     
     def add_plot(self, obj=None, ax_callback=None, **plot_kwargs):
         return self._add_obj(obj, ax_callback, plot_kwargs, as_image=False, single=True)
     
-    def add_plots(self, obj=None, ax_callback=None, **plot_kwargs):
-        return self._add_obj(obj, ax_callback, plot_kwargs, as_image=False, single=False)
+    def add_plots(self, *objs, ax_callback=None, **plot_kwargs):
+        for obj in objs:
+            self.add_plot(obj, ax_callback=ax_callback, **plot_kwargs)
+        return self
     
     # endregion
     
