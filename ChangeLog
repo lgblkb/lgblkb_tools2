@@ -4,6 +4,14 @@ Changelog
 
 (unreleased)
 ------------
+- Added get_dist_info. [lgblkb]
+- Update requirements. [lgblkb]
+- Updated Plotter. [lgblkb]
+- Fix issue. [lgblkb]
+- Removed dev_script.py. Added taskipy. [lgblkb]
+- Updated Plotter to plot both images and line plots. [lgblkb]
+- Updated Plotter to plot both images and line plots. [lgblkb]
+- Updated ChangeLog. [lgblkb]
 - Bump version: 1.1.14 → 1.1.15. [lgblkb]
 - Cleanup and optimize imports. [lgblkb]
 - Updated ChangeLog. [lgblkb]
