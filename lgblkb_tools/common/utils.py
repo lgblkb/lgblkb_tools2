@@ -1,3 +1,5 @@
+import pandas as pd
+import itertools as it
 import collections
 import functools
 import hashlib
@@ -253,3 +255,14 @@ def dict_merge(dct, merge_dct, add_keys=True):
         else:
             dct[k] = v
     return dct
+
+
+def get_dist_info(df, dists):
+    """
+    
+    :param df: any object having shape attribute (e.g. pandas Dataframe, numpy array).
+    :param dists: the output of from "scipy.spatial.distance.pdist" function.
+    :return: pandas Dataframe with ['pair','dist'] columns representing the row indices and distances between them.
+    """
+    dists_info = pd.DataFrame(zip(it.combinations(range(df.shape[0]), 2), dists), columns=['pair', 'dist'])
+    return dists_info
