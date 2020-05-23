@@ -4,6 +4,9 @@ Changelog
 
 (unreleased)
 ------------
+- Update ChangeLog. [lgblkb]
+- Fix versioning. [lgblkb]
+- Update requirements.txt. [lgblkb]
 - Added get_dist_info. [lgblkb]
 - Update requirements. [lgblkb]
 - Updated Plotter. [lgblkb]
