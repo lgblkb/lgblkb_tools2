@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lgblkb-tools"
-version = "1.1.20"
+version = "1.1.22"
 description = "Tools to make life easier"
 authors = ["lgblkb <dbakhtiyarov@nu.edu.kz>"]
 
@@ -47,7 +47,7 @@ taskipy = "^1.2.1"
 #version_variable = "lgblkb_tools/__init__.py:__version__"
 
 [tool.taskipy.tasks]
-export="poetry export -f requirements.txt > requirements.txt"
+export="poetry export --without-hashes -f requirements.txt > requirements.txt"
 bump="poetry version patch"
 publish="poetry check && task export && task bump && gitchangelog > ChangeLog && poetry publish --build"
 

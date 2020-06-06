@@ -26,8 +26,9 @@ geom_from_ds = lambda ds: np.abs(np.array(ds.GetGeoTransform()).reshape(2, -1))
 resol_from_ds = lambda ds: geom_from_ds(ds)[:, 1:].sum(axis=0)
 ul_from_ds = lambda ds: geom_from_ds(ds)[:, 0]
 
-get_epsg_from = lambda ds: int(
-    gdal.Info(ds, format='json')['coordinateSystem']['wkt'].rsplit('"EPSG","', 1)[-1].split('"')[0])
+
+# get_epsg_from = lambda ds: int(
+#     gdal.Info(ds, format='json')['coordinateSystem']['wkt'].rsplit('"EPSG","', 1)[-1].split('"')[0])
 
 
 def plot_ds(ds, show=False):
@@ -80,7 +81,7 @@ def contour_generate(ds, val_ranges, driver_name, fpath, field_name, field_type)
 
 
 class DataSet:
-    
+
     def __init__(self, ds, array=None, name=''):
         self.path = None
         if isinstance(ds, str):
@@ -95,25 +96,25 @@ class DataSet:
         self.projection = self.ds.GetProjection()
         self.transform = self.ds.GetGeoTransform()
         self.name = name
-    
+
     # @logger.trace(skimpy=True)
     def get_array(self, band_index=1):
         return ds_to_array(self.ds, band_index=band_index)
-    
+
     @property
     def array(self):
         if self.__array is None:
             self.__array = self.get_array()
         return self.__array
-    
+
     @property
     def epsg(self):
-        return get_epsg_from(self.ds)
-    
+        return osr.SpatialReference(wkt=self.projection).GetAttrValue('AUTHORITY', 1)
+
     def plot(self, show=False):
         plot_ds(self.ds, show=show)
         return self
-    
+
     @logger.trace()
     def reproject(self, to_epsg):
         """
@@ -133,7 +134,7 @@ class DataSet:
         osng = osr.SpatialReference()
         osng.ImportFromEPSG(to_epsg)
         wgs84 = osr.SpatialReference()
-        wgs84.ImportFromEPSG(get_epsg_from(self.ds))
+        wgs84.ImportFromEPSG(self.epsg)
         tx = osr.CoordinateTransformation(wgs84, osng)
         # Up to here, all  the projection have been defined, as well as a
         # transformation from the from to the  to :)
@@ -164,7 +165,7 @@ class DataSet:
         gdal.ReprojectImage(self.ds, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Bilinear)
         # gdal.ReprojectImage(self.ds,dest,wgs84.ExportToWkt(),osng.ExportToWkt())
         return DataSet(dest)
-    
+
     # @logger.trace(skimpy=True)
     def do_warp(self, cutline_feature=None, destroy_after=True, out_epsg=None, out_path='', return_as_ds=True,
                 lazy=False, ignore_error=False, **kwargs):
@@ -207,20 +208,20 @@ class DataSet:
             out = out_path
         if destroy_after: self.ds = None
         return out
-    
+
     @property
     def geo_info(self):
         return self.transform, self.projection
-    
+
     @property
     def raster_sizes(self):
         return self.ds.RasterXSize, self.ds.RasterYSize
-    
+
     @classmethod
     def from_array(cls, array, geo_info):
         if isinstance(geo_info, str): geo_info = DataSet(geo_info)
         return DataSet(array_to_ds(array, geo_info), array)
-    
+
     @logger.trace()
     def polygonize(self, driver_name, fpath, destroy_after=True, **kwargs):
         datasource, ds_layer = polygonize(self.ds, driver_name, fpath, **kwargs)
@@ -229,7 +230,7 @@ class DataSet:
             datasource = None
         if destroy_after: self.ds = None
         return datasource, ds_layer
-    
+
     @logger.trace()
     def generate_contours(self, val_ranges, driver_name, fpath, field_name='DN',
                           field_type=ogr.OFTReal, destroy_after=True):
@@ -241,7 +242,7 @@ class DataSet:
             datasource = None
         if destroy_after: self.ds = None
         return datasource, ds_layer
-    
+
     @logger.trace(skimpy=True)
     def to_geotiff(self, filepath, no_data_value=-9999, dtype=gdal.GDT_Float32, lazy=False):
         if lazy and os.path.exists(filepath): return filepath
@@ -260,7 +261,7 @@ class DataSet:
         band = None
         ds = None
         return filepath
-    
+
     @logger.trace(skimpy=True)
     def to_file(self, filepath, driver_name, no_data_value=-9999, dtype=gdal.GDT_Float32):
         band = self.ds.GetRasterBand(1)
@@ -278,14 +279,18 @@ class DataSet:
         band = None
         ds = None
         return filepath
-    
+
     def scale_array(self, scaler):
         scaled = scaler.fit_transform(self.array.reshape(-1, 1))
         scaled_band = scaled.reshape(self.array.shape)
         out = self.from_array(scaled_band, self.geo_info)
         self.ds = None
         return out
-    
+
+    @property
+    def info(self):
+        return gdal.Info(self.ds, options=gdal.InfoOptions(computeMinMax=True, format='json'))
+
     @logger.trace(skimpy=True)
     def translate(self, options=None, format=None,
                   outputType=gdalconst.GDT_Unknown, bandList=None, maskBand=None,
@@ -316,14 +321,14 @@ class DataSet:
             out = out_path
         if destroy_after: self.ds = None
         return out
-    
+
     @property
     def wkt(self):
-        return get_geom_from_ds(self.ds).ExportToWkt()
-    
+        return self.geom.wkt
+
     @property
     def geom(self):
-        return shwkt.loads(self.wkt)
+        return shg.shape(self.info['wgs84Extent'])
 
 
 @logger.trace(level=logging.DEBUG)
@@ -356,7 +361,7 @@ def rgb_to_geotiff(tiff_path, *band_paths, no_data_value=-9999, dtype=gdal.GDT_F
     # 	options=['PHOTOMETRIC=RGBA','PROFILE=GeoTIFF',]
     # else:
     # 	raise NotImplementedError(f'Invalid number of input files - {len(band_paths)}.',dict(count=len(band_paths)))
-    
+
     outdata = driver.Create(tiff_path, rows, cols, len(band_paths), dtype, options=options)
     outdata.SetGeoTransform(band_dss[0].transform)  ##sets same geotransform as input
     outdata.SetProjection(band_dss[0].projection)  ##sets same projection as input
@@ -367,7 +372,7 @@ def rgb_to_geotiff(tiff_path, *band_paths, no_data_value=-9999, dtype=gdal.GDT_F
         raster_band.WriteArray(np.where(array == 0, no_data_value, array))
         if no_data_value is not False:
             raster_band.SetNoDataValue(no_data_value)  ##if you want these values transparent
-    
+
     outdata.FlushCache()  ##saves to disk!!
     outdata = None
     band = None
@@ -396,14 +401,14 @@ def GetExtent(gt, cols, rows):
     ext = []
     xarr = [0, cols]
     yarr = [0, rows]
-    
+
     for px in xarr:
         for py in yarr:
             x = gt[0] + (px * gt[1]) + (py * gt[2])
             y = gt[3] + (px * gt[4]) + (py * gt[5])
             ext.append([x, y])
         # print(x,y)
-        
+
         yarr.reverse()
     return ext
 
@@ -433,27 +438,27 @@ def get_geo_extent(ds):
     cols = ds.RasterXSize
     rows = ds.RasterYSize
     ext = GetExtent(gt, cols, rows)
-    
+
     src_srs = osr.SpatialReference()
     src_srs.ImportFromWkt(ds.GetProjection())
     # tgt_srs=osr.SpatialReference()
     # tgt_srs.ImportFromEPSG(4326)
     tgt_srs = src_srs.CloneGeogCS()
-    
+
     geo_ext = ReprojectCoords(ext, src_srs, tgt_srs)
     return geo_ext
 
 
-def get_geom_from_ds(ds):
-    extent = get_geo_extent(ds)
-    ring = ogr.Geometry(ogr.wkbLinearRing)
-    image_polygon = ogr.Geometry(ogr.wkbPolygon)
-    for coors in extent:
-        ring.AddPoint(*coors)
-    ring.AddPoint(*ring.GetPoint())
-    # print(ring.GetPoint()[:-1])
-    image_polygon.AddGeometry(ring)
-    return image_polygon
+# def get_geom_from_ds(ds):
+#     extent = get_geo_extent(ds)
+#     ring = ogr.Geometry(ogr.wkbLinearRing)
+#     image_polygon = ogr.Geometry(ogr.wkbPolygon)
+#     for coors in extent:
+#         ring.AddPoint(*coors)
+#     ring.AddPoint(*ring.GetPoint())
+#     # print(ring.GetPoint()[:-1])
+#     image_polygon.AddGeometry(ring)
+#     return image_polygon
 
 
 class GdalMan(object):
@@ -462,11 +467,11 @@ class GdalMan(object):
         self.out_filepath = None
         self.kwargs = kwargs
         self.data = dict()
-    
+
     @property
     def path(self):
         return self.out_filepath
-    
+
     def _run_gdal_cmd(self, gdal_func, *args, **input_params):
         params = list()
         for k, v in dict(self.kwargs, **input_params).items():
@@ -485,30 +490,30 @@ class GdalMan(object):
                 else:
                     params.append(f"-{k} {v}")
         run_cmd(f" ".join(map(str, [gdal_func, *params, *(args or self.args)])))
-    
+
     def _finalize_result(self, out_filepath, label_as):
         self.out_filepath = self.data[label_as or 'path'] = out_filepath
         return self
-    
+
     def gdalwarp(self, *srcfiles, out_filepath, lazy=False, label_as=None, **kwargs):
         if not (lazy and os.path.exists(out_filepath)):
             self._run_gdal_cmd('gdalwarp', *srcfiles, out_filepath, **kwargs)
         return self._finalize_result(out_filepath, label_as)
-    
+
     def gdalbuildvrt(self, out_filepath, *gdalfiles, label_as=None, **kwargs):
         self._run_gdal_cmd('gdalbuildvrt', out_filepath, *gdalfiles, **kwargs)
         return self._finalize_result(out_filepath, label_as)
-    
+
     def gdal_translate(self, src_dataset, out_filepath, lazy=False, label_as=None, **kwargs):
         if not (lazy and os.path.exists(out_filepath)):
             self._run_gdal_cmd('gdal_translate', src_dataset, out_filepath, **kwargs)
         return self._finalize_result(out_filepath, label_as)
-    
+
     def gdal_merge(self, *input_files, out_filepath, lazy=False, label_as=None, **kwargs):
         if not (lazy and os.path.exists(out_filepath)):
             self._run_gdal_cmd('gdal_merge.py', *input_files, **dict(o=out_filepath, **kwargs))
         return self._finalize_result(out_filepath, label_as)
-    
+
     # def _gdal_calc_raw(self, calc_expression, out_filepath, lazy=False, label_as=None, **kwargs):
     #     if not (lazy and os.path.exists(out_filepath)):
     #         self._run_gdal_cmd('gdal_calc.py',
@@ -516,7 +521,7 @@ class GdalMan(object):
     #                                   # **{(k if k.istitle() else f"{k}"): v for k, v in kwargs.items()}))
     #                                   **{k: v for k, v in kwargs.items()}))
     #     return self._finalize_result(out_filepath, label_as)
-    
+
     def gdal_calc(self, untagged_expression, out_filepath, bands_info,
                   lazy=False, label_as=None, **kwargs):
         if not (lazy and os.path.exists(out_filepath)):
@@ -526,7 +531,7 @@ class GdalMan(object):
             tagged_expression = untagged_expression.format(
                 **{band_name: v['tag'] for band_name, v in calc_info.items()})
             tag_paths_info = {v['tag']: v['path'] for v in calc_info.values()}
-            
+
             self._run_gdal_cmd('gdal_calc.py', **kwargs, **tag_paths_info,
                                **{'--outfile': out_filepath, '--calc': f'"{tagged_expression}"'})
         return self._finalize_result(out_filepath, label_as)
