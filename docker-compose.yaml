@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    working_dir: "/home/$USER"
+    user: ${CURRENT_UID}
+    volumes:
+      - "/home/$USER:/home/$USER"
+      - "/etc/group:/etc/group:ro"
+      - "/etc/passwd:/etc/passwd:ro"
+      - "/etc/shadow:/etc/shadow:ro"
+      - "/etc/sudoers.d:/etc/sudoers.d:ro"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    ports:
+      - "10:63342"
+
+
+
