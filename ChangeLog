@@ -4,6 +4,9 @@ Changelog
 
 (unreleased)
 ------------
+- Addded assert_exists to Folder. [lgblkb]
+- Added local dev tools. [lgblkb]
+- Updated DataSet. [lgblkb]
 - Update versioning. [lgblkb]
 - Update ChangeLog. [lgblkb]
 - Fix versioning. [lgblkb]
