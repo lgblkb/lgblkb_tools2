@@ -4,6 +4,9 @@ Changelog
 
 (unreleased)
 ------------
+- Changed info property of DataSet to become a method with kwargs.
+  Removed GdalMan, since it's too early yet. [lgblkb]
+- Addded assert_exists to Folder. [lgblkb]
 - Addded assert_exists to Folder. [lgblkb]
 - Added local dev tools. [lgblkb]
 - Updated DataSet. [lgblkb]

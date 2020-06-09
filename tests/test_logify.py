@@ -1,4 +1,5 @@
-from lgblkb_tools import logger,Folder
+from lgblkb_tools import logger, Folder
+
 
 # logs_path=Folder('logs')['logs.log']
 
@@ -7,16 +8,18 @@ from lgblkb_tools import logger,Folder
 
 @logger.trace()
 def do_something():
-	pass
+    pass
+
 
 @logger.trace()
 def main():
-	this_folder=Folder(__file__)
-	for child in this_folder.children:
-		logger.info('child: %s',child)
-	do_something()
+    this_folder = Folder(__file__)
+    for child in this_folder.children:
+        logger.info('child: %s', child)
+    do_something()
 
-	pass
+    pass
 
-if __name__=='__main__':
-	main()
+
+if __name__ == '__main__':
+    main()

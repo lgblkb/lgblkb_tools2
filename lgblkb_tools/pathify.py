@@ -2,6 +2,7 @@ import functools
 import glob
 import os
 import shutil
+import tempfile
 import zipfile
 from datetime import datetime
 from pathlib import Path, PosixPath
@@ -209,6 +210,10 @@ class Folder(os.PathLike):
         # 	pass
         create_path(self.path)
         return self
+
+    @classmethod
+    def mkdtemp(cls, suffix=None, prefix=None, dir=None):
+        return cls(tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dir))
 
     def glob_delete(self, *patterns, recursive=True):
         glob_search_results = self.glob_search(*patterns, recursive=recursive)
