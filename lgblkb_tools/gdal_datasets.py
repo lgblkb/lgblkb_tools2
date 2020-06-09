@@ -287,9 +287,9 @@ class DataSet:
         self.ds = None
         return out
 
-    @property
-    def info(self):
-        return gdal.Info(self.ds, options=gdal.InfoOptions(computeMinMax=True, format='json'))
+    def get_info(self, **kwargs):
+        kwargs = dict(dict(format='json'), **kwargs)
+        return gdal.Info(self.ds, options=gdal.InfoOptions(**kwargs))
 
     @logger.trace(skimpy=True)
     def translate(self, options=None, format=None,
@@ -328,7 +328,7 @@ class DataSet:
 
     @property
     def geom(self):
-        return shg.shape(self.info['wgs84Extent'])
+        return shg.shape(self.get_info()['wgs84Extent'])
 
 
 @logger.trace(level=logging.DEBUG)
@@ -448,7 +448,6 @@ def get_geo_extent(ds):
     geo_ext = ReprojectCoords(ext, src_srs, tgt_srs)
     return geo_ext
 
-
 # def get_geom_from_ds(ds):
 #     extent = get_geo_extent(ds)
 #     ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -459,81 +458,3 @@ def get_geo_extent(ds):
 #     # print(ring.GetPoint()[:-1])
 #     image_polygon.AddGeometry(ring)
 #     return image_polygon
-
-
-class GdalMan(object):
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.out_filepath = None
-        self.kwargs = kwargs
-        self.data = dict()
-
-    @property
-    def path(self):
-        return self.out_filepath
-
-    def _run_gdal_cmd(self, gdal_func, *args, **input_params):
-        params = list()
-        for k, v in dict(self.kwargs, **input_params).items():
-            if v is True:
-                if k.startswith('-'):
-                    params.append(k)
-                else:
-                    params.append(f'-{k}')
-            elif v is False:
-                continue
-            else:
-                if k.startswith('--'):
-                    params.append(f"{k}={v}")
-                elif k.startswith('-'):
-                    params.append(f"{k} {v}")
-                else:
-                    params.append(f"-{k} {v}")
-        run_cmd(f" ".join(map(str, [gdal_func, *params, *(args or self.args)])))
-
-    def _finalize_result(self, out_filepath, label_as):
-        self.out_filepath = self.data[label_as or 'path'] = out_filepath
-        return self
-
-    def gdalwarp(self, *srcfiles, out_filepath, lazy=False, label_as=None, **kwargs):
-        if not (lazy and os.path.exists(out_filepath)):
-            self._run_gdal_cmd('gdalwarp', *srcfiles, out_filepath, **kwargs)
-        return self._finalize_result(out_filepath, label_as)
-
-    def gdalbuildvrt(self, out_filepath, *gdalfiles, label_as=None, **kwargs):
-        self._run_gdal_cmd('gdalbuildvrt', out_filepath, *gdalfiles, **kwargs)
-        return self._finalize_result(out_filepath, label_as)
-
-    def gdal_translate(self, src_dataset, out_filepath, lazy=False, label_as=None, **kwargs):
-        if not (lazy and os.path.exists(out_filepath)):
-            self._run_gdal_cmd('gdal_translate', src_dataset, out_filepath, **kwargs)
-        return self._finalize_result(out_filepath, label_as)
-
-    def gdal_merge(self, *input_files, out_filepath, lazy=False, label_as=None, **kwargs):
-        if not (lazy and os.path.exists(out_filepath)):
-            self._run_gdal_cmd('gdal_merge.py', *input_files, **dict(o=out_filepath, **kwargs))
-        return self._finalize_result(out_filepath, label_as)
-
-    # def _gdal_calc_raw(self, calc_expression, out_filepath, lazy=False, label_as=None, **kwargs):
-    #     if not (lazy and os.path.exists(out_filepath)):
-    #         self._run_gdal_cmd('gdal_calc.py',
-    #                            **dict({'--outfile': out_filepath, '--calc': f'"{calc_expression}"'},
-    #                                   # **{(k if k.istitle() else f"{k}"): v for k, v in kwargs.items()}))
-    #                                   **{k: v for k, v in kwargs.items()}))
-    #     return self._finalize_result(out_filepath, label_as)
-
-    def gdal_calc(self, untagged_expression, out_filepath, bands_info,
-                  lazy=False, label_as=None, **kwargs):
-        if not (lazy and os.path.exists(out_filepath)):
-            tags = list(string.ascii_uppercase[:len(bands_info)])
-            calc_info = {index_name: dict(tag=tag, path=path) for (index_name, path), tag in
-                         zip(bands_info.items(), tags)}
-            tagged_expression = untagged_expression.format(
-                **{band_name: v['tag'] for band_name, v in calc_info.items()})
-            tag_paths_info = {v['tag']: v['path'] for v in calc_info.values()}
-
-            self._run_gdal_cmd('gdal_calc.py', **kwargs, **tag_paths_info,
-                               **{'--outfile': out_filepath, '--calc': f'"{tagged_expression}"'})
-        return self._finalize_result(out_filepath, label_as)
-        # return self._gdal_calc_raw(tagged_expression, out_filepath, lazy=lazy, label_as=label_as,
-        #                            **dict(tag_paths_info, **kwargs))
