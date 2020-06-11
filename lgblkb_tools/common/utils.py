@@ -58,7 +58,7 @@ def infiterate(iter_obj, max_iter_count=None, next_getter=None, inform_count=8, 
         if i % (max_iter_count // inform_count) == 0:
             on_inform()
             logger.info('%d%%, i=%d', i / (max_iter_count - 1) * 100, i)
-        
+
         obj = next_getter(obj)
         yield obj
         if i == max_iter_count - 1:
@@ -68,30 +68,30 @@ def infiterate(iter_obj, max_iter_count=None, next_getter=None, inform_count=8, 
 
 
 class ParallelTasker:
-    
+
     def __init__(self, func, *args, **kwargs):
         self.partial_func = functools.partial(func, *args, **kwargs)
         self.queue = mp.Queue()
         self._total_proc_count = 0
         pass
-    
+
     def set_run_params(self, **kwargs):
         val_lengths = {len(v) for v in kwargs.values()}
         assert len(val_lengths) == 1
         val_length = val_lengths.pop()
-        
+
         for i in range(val_length):
             self.queue.put((i, {k: v[i] for k, v in kwargs.items()}))
             self._total_proc_count += 1
         # simple_logger.info('self._total_proc_count: %s',self._total_proc_count)
-        
+
         return self
-    
+
     def __process_func(self, queue, common_list):
         i, kwargs = queue.get()
         result = self.partial_func(**kwargs)
         common_list.append([i, result])
-    
+
     @staticmethod
     def __join_finished_processes(active_procs, sleep_time):
         while True:
@@ -105,7 +105,7 @@ class ParallelTasker:
                     # simple_logger.info('Process successfully removed.')
                     return
             time.sleep(sleep_time)
-    
+
     def run(self, workers_count=None, sleep_time=1.0):
         workers_count = min(mp.cpu_count() - 1, workers_count or self._total_proc_count)
         manager = mp.Manager()
@@ -135,7 +135,7 @@ def run_shell(*args, non_blocking=False, chdir=None, with_popen=False, ret_trigg
     chdir = chdir or os.getcwd()
     normal_dir = os.getcwd()
     os.chdir(chdir)
-    
+
     if non_blocking:
         subprocess.Popen(args, stdout=subprocess.PIPE, **kwargs)
     else:
@@ -222,13 +222,13 @@ def run_command(cmd):
         sys.stdout.write(c.decode(sys.stdout.encoding, errors='ignore'))
 
 
-def run_cmd(cmd, **kwargs):
+def run_cmd(cmd, debug=False, **kwargs):
     if isinstance(cmd, str):
         steps = [cmd]
     else:
         steps = cmd
     for step in steps:
-        logger.debug('step: %s', step)
+        if debug: logger.debug('step: %s', step)
         subprocess.run(step, **dict(dict(check=True, shell=True), **kwargs))
 
 
@@ -248,7 +248,7 @@ def dict_merge(dct, merge_dct, add_keys=True):
     # 		dict_merge(dct[k],merge_dct[k])
     # 	else:
     # 		dct[k]=merge_dct[k]
-    
+
     for k, v in merge_dct.items():
         if isinstance(dct.get(k), dict) and isinstance(v, collections.Mapping):
             dct[k] = dict_merge(dct[k], v, add_keys=add_keys)
