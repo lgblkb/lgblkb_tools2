@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lgblkb-tools"
-version = "1.1.25"
+version = "1.1.26"
 description = "Tools to make life easier"
 authors = ["lgblkb <dbakhtiyarov@nu.edu.kz>"]
 

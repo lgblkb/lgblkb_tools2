@@ -448,13 +448,187 @@ def get_geo_extent(ds):
     geo_ext = ReprojectCoords(ext, src_srs, tgt_srs)
     return geo_ext
 
-# def get_geom_from_ds(ds):
-#     extent = get_geo_extent(ds)
-#     ring = ogr.Geometry(ogr.wkbLinearRing)
-#     image_polygon = ogr.Geometry(ogr.wkbPolygon)
-#     for coors in extent:
-#         ring.AddPoint(*coors)
-#     ring.AddPoint(*ring.GetPoint())
-#     # print(ring.GetPoint()[:-1])
-#     image_polygon.AddGeometry(ring)
-#     return image_polygon
+
+class GdalMan(object):
+    def __init__(self, debug=False, lazy=False, **kwargs):
+        self.out_filepath = None
+        self.kwargs = kwargs
+        self.debug = debug
+        self.lazy = lazy
+        self.data = dict()
+
+    def _get_laziness(self, lazy, out_filepath):
+        # if Path(out_filepath).suffix.lower() == '.vrt' and lazy:
+        #     logger.warning('Lazy is set to True, but provided out_filepath is virtual.',
+        #                    dict(provided_vrt_path=out_filepath))
+        #     lazy = False
+        return self.lazy if lazy is None else lazy
+
+    @property
+    def path(self):
+        return self.out_filepath
+
+    @property
+    def ds(self):
+        return DataSet(self.out_filepath)
+
+    def _run_gdal_cmd(self, gdal_func, *args, is_gdal_calc=False, **input_params):
+        params = list()
+        if is_gdal_calc:
+            default_kwargs = self.kwargs.copy()
+            if 'q' in self.kwargs:
+                q = default_kwargs.pop('q')
+                default_kwargs['--quiet'] = q
+            options = dict(default_kwargs, **input_params)
+        else:
+            options = dict(self.kwargs, **input_params)
+        for k, v in options.items():
+            if v is True:
+                if k.startswith('-'):
+                    params.append(k)
+                else:
+                    params.append(f'-{k}')
+            elif not v:
+                continue
+            else:
+                if k.startswith('--'):
+                    params.append(f"{k}={v}")
+                elif k.startswith('-'):
+                    params.append(f"{k} {v}")
+                else:
+                    params.append(f"-{k} {v}")
+        run_cmd(f" ".join(map(str, [gdal_func, *args, *params])), debug=self.debug)
+
+    def _finalize_result(self, out_filepath, label_as, debug=None):
+        self.out_filepath = self.data[label_as or 'path'] = out_filepath
+        debug = debug or self.debug
+        if debug:
+            if isinstance(debug, str):
+                log_level = debug.lower()
+            else:
+                log_level = 'debug'
+            getattr(logger.a(), log_level)("%s: %s", label_as or get_name(self.out_filepath), self.out_filepath).s()
+        if not Path(self.out_filepath).exists():
+            raise FileNotFoundError(self.out_filepath)
+        return self
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
+    def gdalwarp(self, *srcfiles, out_filepath, lazy=None, label_as=None, debug=None, **kwargs):
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            # if not Path(out_filepath).exists(): os.remove(out_filepath)
+            self._run_gdal_cmd('gdalwarp', *srcfiles, out_filepath, **dict(dict(overwrite=True), **kwargs))
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdalbuildvrt(self, *gdalfiles, out_filepath, label_as=None, debug=None, **kwargs):
+        self._run_gdal_cmd('gdalbuildvrt', out_filepath, *gdalfiles, **dict(dict(overwrite=True), **kwargs))
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdal_translate(self, src_dataset, out_filepath, lazy=None, label_as=None, debug=None, **kwargs):
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            self._run_gdal_cmd('gdal_translate', src_dataset, out_filepath, **kwargs)
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdal_merge(self, *input_files, out_filepath, lazy=None, label_as=None, debug=None, **kwargs):
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            self._run_gdal_cmd('gdal_merge.py', *input_files, **dict(o=out_filepath, **kwargs))
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdaldem(self, mode, input_dem, out_filepath, color_text_file=None,
+                lazy=None, label_as=None, debug=None, **kwargs):
+        if mode == 'color-relief': assert color_text_file is not None
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            if color_text_file:
+                self._run_gdal_cmd('gdaldem', mode, input_dem, color_text_file, out_filepath, **kwargs)
+            else:
+                self._run_gdal_cmd('gdaldem', mode, input_dem, out_filepath, **kwargs)
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdal_calc(self, untagged_expression, out_filepath, equation_info,
+                  lazy=None, label_as=None, debug=None, **kwargs):
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            tags = list(string.ascii_uppercase[:len(equation_info)])
+            kwargs = {k.lstrip('-'): v for k, v in kwargs.items()}
+            additional_eqn_info = {k: v for k, v in kwargs.items() if k[0].isupper()}
+
+            calc_info = {item_name: dict(tag=tag, path=path) for (item_name, path), tag in
+                         zip(dict(equation_info, **additional_eqn_info).items(), tags)}
+
+            tagged_expression = untagged_expression.format(
+                **{band_name: v['tag'] for band_name, v in calc_info.items()})
+            options = {v['tag']: v['path'] for v in calc_info.values()}
+
+            undashed_options = {'outfile': out_filepath, 'calc': f'"{tagged_expression}"', 'overwrite': True}
+
+            undashed_options.update(kwargs)
+            if 'q' in undashed_options:
+                q = undashed_options.pop('q')
+                undashed_options['quiet'] = q
+            for k, v in undashed_options.items():
+                options["--" + k] = v
+            self._run_gdal_cmd('gdal_calc.py', is_gdal_calc=True, **options)
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def ogr2ogr(self, input_datasource, out_filepath, lazy=None, label_as=None, debug=None, **kwargs):
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            self._run_gdal_cmd('ogr2ogr', out_filepath, input_datasource, **dict(dict(overwrite=True), **kwargs))
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdal_contour(self, src_filename, out_filepath, lazy=None, label_as=None, debug=None, **kwargs):
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            self._run_gdal_cmd('gdal_contour', src_filename, out_filepath, **kwargs)
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdal_polygonize(self, raster_file, out_filepath, layer='polygons',
+                        connectedness=4, nomask=False, mask=None, band=None, ogr_format=None, fieldname='DN',
+                        lazy=None, label_as=None, debug=None, q=None):
+        """
+        gdal_polygonize.py [-8] [-nomask] [-mask filename] <raster_file> [-b band]
+                   [-q] [-f ogr_format] <out_file> [layer] [fieldname]
+        :return: self
+        """
+        args_1 = list()
+        if connectedness != 4: args_1.append(f"-{connectedness}")
+        if nomask: args_1.append(f"-nomask")
+        if mask is not None: args_1.append(f"-mask {mask}")
+        args_2 = list()
+        if band is not None: args_2.append(f"-b {band}")
+        if q is not None: args_2.append("-q")
+        if ogr_format is not None: args_2.append(f"-f {ogr_format}")
+        args_3 = list()
+        if layer: args_3.append(layer)
+        if fieldname: args_3.append(fieldname)
+
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            self._run_gdal_cmd('gdal_polygonize.py', *args_2, raster_file, *args_2, out_filepath, *args_3)
+        return self._finalize_result(out_filepath, label_as, debug)
+
+    def gdal_rasterize(self, src_filename, out_filepath, lazy=None, label_as=None, debug=None, **kwargs):
+        """
+        gdal_rasterize [-b band]* [-i] [-at]
+    {[-burn value]* | [-a attribute_name] | [-3d]} [-add]
+    [-l layername]* [-where expression] [-sql select_statement]
+    [-dialect dialect] [-of format] [-a_srs srs_def] [-to NAME=VALUE]*
+    [-co "NAME=VALUE"]* [-a_nodata value] [-init value]*
+    [-te xmin ymin xmax ymax] [-tr xres yres] [-tap] [-ts width height]
+    [-ot {Byte/Int16/UInt16/UInt32/Int32/Float32/Float64/
+            CInt16/CInt32/CFloat32/CFloat64}]
+    [-optim {[AUTO]/VECTOR/RASTER}] [-q]
+    <src_datasource> <dst_filename>
+        """
+        lazy = self._get_laziness(lazy, out_filepath)
+        if not (lazy and os.path.exists(out_filepath)):
+            self._run_gdal_cmd('gdal_rasterize', src_filename, out_filepath, **kwargs)
+        return self._finalize_result(out_filepath, label_as, debug)

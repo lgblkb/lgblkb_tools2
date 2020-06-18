@@ -4,6 +4,8 @@ Changelog
 
 (unreleased)
 ------------
+- Debug run_cmd. [lgblkb]
+- Added mkdtemp to Folder. [lgblkb]
 - Added mkdtemp to Folder. [lgblkb]
 - Changed info property of DataSet to become a method with kwargs.
   Removed GdalMan, since it's too early yet. [lgblkb]
