@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Added GdalMan. [lgblkb]
 - Debug run_cmd. [lgblkb]
 - Added mkdtemp to Folder. [lgblkb]
 - Added mkdtemp to Folder. [lgblkb]
