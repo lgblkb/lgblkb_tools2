@@ -347,6 +347,18 @@ version = "4.2.0.34"
 numpy = ">=1.11.1"
 
 [[package]]
+category = "main"
+description = "Google OR-Tools python libraries and modules"
+name = "ortools"
+optional = false
+python-versions = "*"
+version = "7.7.7810"
+
+[package.dependencies]
+protobuf = ">=3.12.2"
+six = ">=1.10"
+
+[[package]]
 category = "dev"
 description = "Core utilities for Python packages"
 name = "packaging"
@@ -389,6 +401,18 @@ version = ">=0.12"
 
 [package.extras]
 dev = ["pre-commit", "tox"]
+
+[[package]]
+category = "main"
+description = "Protocol Buffers"
+name = "protobuf"
+optional = false
+python-versions = "*"
+version = "3.12.2"
+
+[package.dependencies]
+setuptools = "*"
+six = ">=1.9"
 
 [[package]]
 category = "dev"
@@ -668,7 +692,7 @@ gdal = []
 vectorize = []
 
 [metadata]
-content-hash = "75e19d2504a46c4df1ec78bf1e646e039b8440a55357e56de90583c12679b738"
+content-hash = "a80517872462a50d765f49a9d9e580a6d80c0e320ded114b4fe6e464d6a7413c"
 python-versions = "^3.6.9"
 
 [metadata.files]
@@ -916,6 +940,18 @@ opencv-python = [
     {file = "opencv_python-4.2.0.34-cp38-cp38-win32.whl", hash = "sha256:1ab92d807427641ec45d28d5907426aa06b4ffd19c5b794729c74d91cd95090e"},
     {file = "opencv_python-4.2.0.34-cp38-cp38-win_amd64.whl", hash = "sha256:e2206bb8c17c0f212f1f356d82d72dd090ff4651994034416da9bf0c29732825"},
 ]
+ortools = [
+    {file = "ortools-7.7.7810-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:d469d733d58f63b6916f549b62dd28b525fddb6b1a785cd9b61c9b56a514025a"},
+    {file = "ortools-7.7.7810-cp36-cp36m-macosx_10_6_intel.whl", hash = "sha256:f52efa7e8fdbd6846dab8d39adf0a4e49760b31fa74a69731a6eeaec71926649"},
+    {file = "ortools-7.7.7810-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:78653beee01b8bb3835d48f87726b8fe3a02d78357f8bec4bd202fda9e41f2ff"},
+    {file = "ortools-7.7.7810-cp36-cp36m-win_amd64.whl", hash = "sha256:bae2249552cba029ad2677ddd014e33a106699c04424227c441adaf0eae09bac"},
+    {file = "ortools-7.7.7810-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:4a6b94a19bd255ea9767ea39c67d691abe220a55c300b67fca5f1e6f077c6527"},
+    {file = "ortools-7.7.7810-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:c38d47ec8efd5d439602fccd8c2e594bfeeee53d66c0a1270d8e8f67f9278783"},
+    {file = "ortools-7.7.7810-cp37-cp37m-win_amd64.whl", hash = "sha256:b8d25c8dfdb5e621a3391446aa3a9c6a24ad65a018bcb89387496b24a7684448"},
+    {file = "ortools-7.7.7810-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:3dbe504a7201a71f17fe20a30e276fd305951f63bfb9dc9c04a6908d956dcd30"},
+    {file = "ortools-7.7.7810-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:5fa318de5cc4fcba91013884c1dd7811b4e54c457ba12cbd839b5a2ea0346bea"},
+    {file = "ortools-7.7.7810-cp38-cp38-win_amd64.whl", hash = "sha256:3482cf3e1fcb85b70e5696554d3a1e3899187269a1570e1c70fdd760c9eb02bc"},
+]
 packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
     {file = "packaging-20.4.tar.gz", hash = "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"},
@@ -944,6 +980,26 @@ pandas = [
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
+]
+protobuf = [
+    {file = "protobuf-3.12.2-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:e1464a4a2cf12f58f662c8e6421772c07947266293fb701cb39cd9c1e183f63c"},
+    {file = "protobuf-3.12.2-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:6f349adabf1c004aba53f7b4633459f8ca8a09654bf7e69b509c95a454755776"},
+    {file = "protobuf-3.12.2-cp35-cp35m-macosx_10_9_intel.whl", hash = "sha256:be04fe14ceed7f8641e30f36077c1a654ff6f17d0c7a5283b699d057d150d82a"},
+    {file = "protobuf-3.12.2-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:f4b73736108a416c76c17a8a09bc73af3d91edaa26c682aaa460ef91a47168d3"},
+    {file = "protobuf-3.12.2-cp35-cp35m-win32.whl", hash = "sha256:5524c7020eb1fb7319472cb75c4c3206ef18b34d6034d2ee420a60f99cddeb07"},
+    {file = "protobuf-3.12.2-cp35-cp35m-win_amd64.whl", hash = "sha256:bff02030bab8b969f4de597543e55bd05e968567acb25c0a87495a31eb09e925"},
+    {file = "protobuf-3.12.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:c9ca9f76805e5a637605f171f6c4772fc4a81eced4e2f708f79c75166a2c99ea"},
+    {file = "protobuf-3.12.2-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:304e08440c4a41a0f3592d2a38934aad6919d692bb0edfb355548786728f9a5e"},
+    {file = "protobuf-3.12.2-cp36-cp36m-win32.whl", hash = "sha256:b5a114ea9b7fc90c2cc4867a866512672a47f66b154c6d7ee7e48ddb68b68122"},
+    {file = "protobuf-3.12.2-cp36-cp36m-win_amd64.whl", hash = "sha256:85b94d2653b0fdf6d879e39d51018bf5ccd86c81c04e18a98e9888694b98226f"},
+    {file = "protobuf-3.12.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:a7ab28a8f1f043c58d157bceb64f80e4d2f7f1b934bc7ff5e7f7a55a337ea8b0"},
+    {file = "protobuf-3.12.2-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:eafe9fa19fcefef424ee089fb01ac7177ff3691af7cc2ae8791ae523eb6ca907"},
+    {file = "protobuf-3.12.2-cp37-cp37m-win32.whl", hash = "sha256:612bc97e42b22af10ba25e4140963fbaa4c5181487d163f4eb55b0b15b3dfcd2"},
+    {file = "protobuf-3.12.2-cp37-cp37m-win_amd64.whl", hash = "sha256:e72736dd822748b0721f41f9aaaf6a5b6d5cfc78f6c8690263aef8bba4457f0e"},
+    {file = "protobuf-3.12.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:87535dc2d2ef007b9d44e309d2b8ea27a03d2fa09556a72364d706fcb7090828"},
+    {file = "protobuf-3.12.2-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:50b5fee674878b14baea73b4568dc478c46a31dd50157a5b5d2f71138243b1a9"},
+    {file = "protobuf-3.12.2-py2.py3-none-any.whl", hash = "sha256:a96f8fc625e9ff568838e556f6f6ae8eca8b4837cdfb3f90efcb7c00e342a2eb"},
+    {file = "protobuf-3.12.2.tar.gz", hash = "sha256:49ef8ab4c27812a89a76fa894fe7a08f42f2147078392c0dee51d4a444ef6df5"},
 ]
 py = [
     {file = "py-1.8.2-py2.py3-none-any.whl", hash = "sha256:a673fa23d7000440cc885c17dbd34fafcb7d7a6e230b29f6766400de36a33c44"},

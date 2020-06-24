@@ -26,7 +26,9 @@ more-itertools==8.4.0
 munch==2.5.0
 numpy==1.19.0
 opencv-python==4.2.0.34
+ortools==7.7.7810
 pandas==0.25.3
+protobuf==3.12.2
 pycparser==2.20
 pyparsing==2.4.7
 pyproj==2.6.1.post1
