@@ -7,7 +7,7 @@ import seaborn as sns
 from box import Box
 import itertools as it
 import more_itertools as mit
-from lgblkb_tools.geometry import FieldPoly
+from lgblkb_tools.geometry import SpatialMan
 
 sns.set()
 # region pandas options:
@@ -24,8 +24,9 @@ cache = diskcache.Cache(this_folder['.cache'])
 
 @logger.trace()
 def main():
-    FieldPoly.synthesize(10).plot()
-    plt.show()
+
+    # FieldPoly.synthesize(10).plot()
+    # plt.show()
     pass
 
 

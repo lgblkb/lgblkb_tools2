@@ -1,8 +1,8 @@
 from .point_utils import ThePoint
 from .line_utils import TheLine
 from .poly_utils import ThePoly
-from .field_utils import FieldPoly
 from .spatial_manager import SpatialMan
+from .field_utils import FieldPoly
 
 geom_kz_coarse = r'POLYGON ((59.501953125 51.39920565355378, 51.50390625 52.50953477032727, 46.40625 50.875311142200765, ' \
                  r'45.1318359375 48.516604348867475, 51.37207031249999 41.04621681452063, 56.4697265625 40.713955826286046, ' \

@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 from shapely import geometry as shg
 
-from lgblkb_tools.geometry import FieldPoly
 from lgblkb_tools import logger
 
 
@@ -32,6 +31,7 @@ class SpatialMan(object):
 
     @classmethod
     def get_random_fields(cls, bounding_geometry, crs, geoms_count, size_range=(0.01, 0.1)):
+        from lgblkb_tools.geometry import FieldPoly
         geom_fm = cls.from_geoms([bounding_geometry], crs)
         area = geom_fm.area[0]
         radius = np.sqrt(area / np.pi)
