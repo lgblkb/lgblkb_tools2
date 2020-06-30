@@ -1,3 +1,4 @@
+from pathlib import Path
 import logging
 import os
 import string
@@ -13,6 +14,7 @@ from osgeo import gdal, gdal_array, ogr, osr, gdalconst
 from . import logger
 from . import pathify
 from .common.utils import run_cmd
+from .pathify import get_name
 
 gdal.UseExceptions()
 

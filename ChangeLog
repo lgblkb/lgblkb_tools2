@@ -4,6 +4,8 @@ Changelog
 
 (unreleased)
 ------------
+- Fixed circular import bug. [lgblkb]
+- Integrated navigation tools to lgblkb_tools. [lgblkb]
 - Integrated navigation tools to lgblkb_tools. [lgblkb]
 - Integrated navigation tools to lgblkb_tools. [lgblkb]
 - Integrated navigation tools to lgblkb_tools. [lgblkb]
