@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lgblkb-tools"
-version = "2.0.4"
+version = "2.0.5"
 description = "Tools to make life easier"
 authors = ["lgblkb <dbakhtiyarov@nu.edu.kz>"]
 
@@ -31,6 +31,9 @@ invoke = "^1.4.1"
 pandas = "<1.0.0"
 checksumdir = "^1.1.7"
 ortools = "^7.7.7810"
+visilibity = "^1.0.10"
+networkx = "^2.4"
+sortedcontainers = "^2.2.2"
 
 
 [tool.poetry.extras]
