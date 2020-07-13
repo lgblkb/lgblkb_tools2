@@ -291,10 +291,10 @@ class ThePoly(GenericGeometry):
     def p(self):
         return self.polygon
 
-    def plot(self, text=None, **kwargs):
+    def plot(self, text=None, hole_opts=None, **kwargs):
         # gmtr.plot_polygon(self.polygon,**dict(dict(c='gray'),**kwargs))
         plot_polygon(self.polygon, **kwargs)
-        plot_patches(map(lambda h: h.p, self.holes), alpha=0.7)
+        plot_patches(map(lambda h: h.p, self.holes), **dict(dict(alpha=0.7), **(hole_opts or {})))
         if text is not None: plt.text(*np.array(self.polygon.centroid.xy), s=text)
         return self
 
