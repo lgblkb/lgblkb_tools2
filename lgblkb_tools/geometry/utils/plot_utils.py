@@ -25,12 +25,11 @@ def plot_polygon(polygon: shg.Polygon, label=None, ax=None, name='', **kwargs):
         plotter(p_i, 'interior {}'.format(i))
 
 
-def plot_patches(polygons, ax=None, c=None, **kwargs):
+def plot_patches(polygons, ax=None, **kwargs):
     if ax is None: ax = plt.gca()
     if isinstance(polygons, pd.Series):
-        pcol = PatchCollection(polygons.map(lambda p: shg.Polygon(p.exterior)), **kwargs)
+        polygons.plot(ax=ax, **kwargs)
+        # pcol = PatchCollection(polygons.map(lambda p: shg.Polygon(p.exterior)), **kwargs)
     else:
-        poly_objs = [shg.Polygon(x.exterior) for x in polygons]
-        pcol = PatchCollection(poly_objs, **kwargs)
-    if c: pcol.set_color(c)
-    ax.add_collection(pcol)
+        for x in polygons:
+            ax.fill(*x.exterior.xy, **dict(dict(alpha=0.5), **kwargs))
