@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Added tests and fixed dependencies. [lgblkb]
 - Fixed bug with get_name not defined and Path object not found. Spasibo
   Nurbeku. [lgblkb]
 - Fixed circular import bug. [lgblkb]
