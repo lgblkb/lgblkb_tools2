@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import shapely.geometry as shg
 import shapely.wkt as shwkt
+from box import Box
 from osgeo import gdal, gdal_array, ogr, osr, gdalconst
 
 from . import logger
@@ -224,6 +225,16 @@ class DataSet:
     def raster_sizes(self):
         return self.ds.RasterXSize, self.ds.RasterYSize
 
+    @property
+    def file_meta(self):
+        return Box(self.ds.GetMetadata())
+
+    def get_band_metas(self):
+        band_metas = list()
+        for i in self.raster_count:
+            band_metas.append(Box(self.ds.GetRasterBand(i + 1).GetMetadata()))
+        return band_metas
+
     @classmethod
     def from_array(cls, array, geo_info):
         if isinstance(geo_info, str): geo_info = DataSet(geo_info)
@@ -270,26 +281,32 @@ class DataSet:
         return filepath
 
     @logger.trace(skimpy=True)
-    def to_file(self, filepath, driver_name, no_data_value=-9999, dtype=gdal.GDT_Float32):
+    def to_file(self, filepath, driver_name, no_data_value=-9999, dtype=gdal.GDT_Float32,
+                file_meta: dict = None, band_metas: list = None):
         driver = gdal.GetDriverByName(driver_name)
         cols, rows = self.ds.GetRasterBand(1).ReadAsArray().shape
         outdata = driver.Create(filepath, rows, cols, self.raster_count, dtype)
         outdata.SetGeoTransform(self.transform)  ##sets same geotransform as input
         outdata.SetProjection(self.projection)  ##sets same projection as input
+        if file_meta:
+            outdata.SetMetadata({str(k): str(v) for k, v in file_meta.items()})
 
-        for band_num in range(1, self.ds.RasterCount + 1):
+        for band_i in range(self.ds.RasterCount):
+            band_num = band_i + 1
             arr = self.ds.GetRasterBand(band_num).ReadAsArray()
             if no_data_value is False:
                 the_array = arr
             else:
                 the_array = np.where(np.isnan(arr), no_data_value, arr)
-            outdata.GetRasterBand(band_num).WriteArray(the_array)
+            band = outdata.GetRasterBand(band_num)
+            band.WriteArray(the_array)
+            if band_metas:
+                band.SetMetadata({str(k): str(v) for k, v in band_metas[band_i].items()})
             if no_data_value is not False:
-                outdata.GetRasterBand(band_num).SetNoDataValue(no_data_value)  ##if you want these values transparent
+                band.SetNoDataValue(no_data_value)  ##if you want these values transparent
         outdata.FlushCache()  ##saves to disk!!
         outdata = None
         band = None
-        ds = None
         return filepath
 
     @logger.trace(skimpy=True)

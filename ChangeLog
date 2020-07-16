@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Create custom geo_info. [lgblkb]
 - Save DataSet containing multiple bands seamlessly. [lgblkb]
 - Updated plotting patches. [lgblkb]
 - Updated plotting patches. [lgblkb]
