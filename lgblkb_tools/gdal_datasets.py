@@ -216,6 +216,10 @@ class DataSet:
         return self.transform, self.projection
 
     @property
+    def raster_count(self):
+        return self.ds.RasterCount
+
+    @property
     def raster_sizes(self):
         return self.ds.RasterXSize, self.ds.RasterYSize
 
@@ -266,6 +270,29 @@ class DataSet:
 
     @logger.trace(skimpy=True)
     def to_file(self, filepath, driver_name, no_data_value=-9999, dtype=gdal.GDT_Float32):
+        driver = gdal.GetDriverByName(driver_name)
+        cols, rows = self.ds.GetRasterBand(1).ReadAsArray().shape
+        outdata = driver.Create(filepath, rows, cols, self.raster_count, dtype)
+        outdata.SetGeoTransform(self.transform)  ##sets same geotransform as input
+        outdata.SetProjection(self.projection)  ##sets same projection as input
+
+        for band_num in range(1, self.ds.RasterCount + 1):
+            arr = self.ds.GetRasterBand(band_num).ReadAsArray()
+            if no_data_value is False:
+                the_array = arr
+            else:
+                the_array = np.where(np.isnan(arr), no_data_value, arr)
+            outdata.GetRasterBand(band_num).WriteArray(the_array)
+            if no_data_value is not False:
+                outdata.GetRasterBand(band_num).SetNoDataValue(no_data_value)  ##if you want these values transparent
+        outdata.FlushCache()  ##saves to disk!!
+        outdata = None
+        band = None
+        ds = None
+        return filepath
+
+    @logger.trace(skimpy=True)
+    def to_file_old(self, filepath, driver_name, no_data_value=-9999, dtype=gdal.GDT_Float32):
         band = self.ds.GetRasterBand(1)
         arr = band.ReadAsArray()
         [cols, rows] = arr.shape
