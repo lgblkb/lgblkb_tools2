@@ -231,7 +231,7 @@ class DataSet:
 
     def get_band_metas(self):
         band_metas = list()
-        for i in self.raster_count:
+        for i in range(self.raster_count):
             band_metas.append(Box(self.ds.GetRasterBand(i + 1).GetMetadata()))
         return band_metas
 
