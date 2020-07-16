@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Save DataSet containing multiple bands seamlessly. [lgblkb]
 - Updated plotting patches. [lgblkb]
 - Updated plotting patches. [lgblkb]
 - Added tests and fixed dependencies. [lgblkb]

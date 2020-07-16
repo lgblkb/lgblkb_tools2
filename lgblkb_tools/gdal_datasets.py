@@ -3,6 +3,7 @@ import logging
 import os
 import string
 import uuid
+from typing import Iterable, Union
 
 import geojson
 import matplotlib.pyplot as plt
@@ -661,3 +662,26 @@ class GdalMan(object):
         if not (lazy and os.path.exists(out_filepath)):
             self._run_gdal_cmd('gdal_rasterize', src_filename, out_filepath, **kwargs)
         return self._finalize_result(out_filepath, label_as, debug)
+
+
+def get_geo_info(upper_left_xy: Union[list, tuple, np.ndarray],
+                 resol_xy: Union[list, tuple, np.ndarray],
+                 epsg: int) -> tuple:
+    """
+    Generates custom geo_info.
+    :param upper_left_xy: X and Y coordinates of upper left corner.
+    :param resol_xy: Resolution of image in X and Y directions.
+    :param epsg: EPSG
+    :return: transform and projection (i.e. geo_info).
+    """
+    transform = np.zeros(6)
+    transform[0] = upper_left_xy[0] - resol_xy[0] / 2
+    transform[1:3] = resol_xy[0], 0
+    transform[3] = upper_left_xy[1] + resol_xy[1] / 2
+    transform[4:] = 0, -resol_xy[1]
+
+    spatial_ref = osr.SpatialReference()
+    spatial_ref.ImportFromEPSG(epsg)
+    projection = spatial_ref.ExportToWkt()
+    geo_info = (transform, projection)
+    return geo_info
