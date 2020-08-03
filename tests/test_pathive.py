@@ -119,9 +119,12 @@ def test_folder_bool(this_folder: Folder):
 
 def main():
     # f1=Folder(r'/home/lgblkb/PycharmProjects/imagination/imagination/data/sentinel2',assert_exists=True)
-    f1 = Folder(r'.')
-    for child in f1.children:
-        logger.debug('child: %s', child)
+    # f1 = Folder(r'.')
+    # for child in f1.children:
+    #     logger.debug('child: %s', child)
+    f1 = Folder()
+    res=f1.get_filepath('qwe', datetime_loc_index=-1)
+    logger.debug("res: %s",res)
 
     # utils.run_command(f'cp -ans {f1}* {f2}/')
     # df=pd.DataFrame(map(Folder,[*f1['unzipped'].children,*f2['unzipped'].children]),columns=['safe_folder'])

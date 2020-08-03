@@ -157,8 +157,10 @@ class Folder(os.PathLike):
         parts = list()
         if include_depth: parts.extend(_get_name_parts_from_depth(self.path, include_depth))
         parts.extend(generate_name_portions(*name_args, **name_kwargs))
-        if datetime_loc_index is not None: parts.insert(datetime_loc_index,
-                                                        datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        if datetime_loc_index is not None:
+            if datetime_loc_index < 0: datetime_loc_index = len(parts) + datetime_loc_index + 1
+            parts.insert(datetime_loc_index, datetime.now().strftime("%Y%m%d_%H%M%S"))
+
         assert parts, 'Nothing is provided to create filepath.'
 
         # output_path = os.path.join(self.path, delim.join(map(str, parts)).replace(' ', delim) + ext)
