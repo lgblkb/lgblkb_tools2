@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Read and write raster metadata. Bug fixes. [lgblkb]
 - Read and write raster metadata. [lgblkb]
 - Create custom geo_info. [lgblkb]
 - Save DataSet containing multiple bands seamlessly. [lgblkb]

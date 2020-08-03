@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lgblkb-tools"
-version = "2.0.11"
+version = "2.0.13"
 description = "Tools to make life easier"
 authors = ["lgblkb <dbakhtiyarov@nu.edu.kz>"]
 
@@ -28,7 +28,7 @@ python-box = "<=4.0.0"
 bumpversion = "^0.5.3"
 gitchangelog = "^3.0.4"
 invoke = "^1.4.1"
-pandas = "<1.0.0"
+pandas = "^1.0.0"
 checksumdir = "^1.1.7"
 ortools = "^7.7.7810"
 visilibity = "^1.0.10"
@@ -37,9 +37,9 @@ sortedcontainers = "^2.2.2"
 
 
 [tool.poetry.extras]
-gdal=["gdal==2.4.2"]
-vectorize=["gdal==2.4.2","geopandas=^0.7.0","opencv-python=^4.2.0","scipy=^1.4.1",]
-db=["geoalchemy2=^0.6.3","sqlalchemy=^1.3.13"]
+gdal = ["gdal==2.4.2"]
+vectorize = ["gdal==2.4.2", "geopandas=^0.7.0", "opencv-python=^4.2.0", "scipy=^1.4.1", ]
+db = ["geoalchemy2=^0.6.3", "sqlalchemy=^1.3.13"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3.5"
@@ -51,10 +51,10 @@ taskipy = "^1.2.1"
 #version_variable = "lgblkb_tools/__init__.py:__version__"
 
 [tool.taskipy.tasks]
-export="poetry export --without-hashes -f requirements.txt > requirements.txt"
-bump="poetry version patch"
-install="poetry run pip install -U lgblkb-tools && poetry run pip install -U lgblkb-tools"
-publish="poetry check && task export && task bump && gitchangelog > ChangeLog && poetry publish --build && task install"
+export = "poetry export --without-hashes -f requirements.txt > requirements.txt"
+bump = "poetry version patch"
+install = "poetry run pip install -U lgblkb-tools && poetry run pip install -U lgblkb-tools"
+publish = "poetry update && poetry check && task export && task bump && gitchangelog > ChangeLog && poetry publish --build && task install"
 
 
 [build-system]
