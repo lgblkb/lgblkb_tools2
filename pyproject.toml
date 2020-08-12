@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "lgblkb-tools"
-version = "2.0.13"
-description = "Tools to make life easier"
+version = "2.0.15"
+description = "Helper tools for lgblkb)"
 authors = ["lgblkb <dbakhtiyarov@nu.edu.kz>"]
 
 [tool.poetry.dependencies]
@@ -22,7 +22,7 @@ opencv-python = "^4.2.0"
 scipy = "^1.4.1"
 geoalchemy2 = "^0.6.3"
 sqlalchemy = "^1.3.13"
-dynaconf = "^2.2.2"
+dynaconf = "^3"
 pyyaml = "^5.3"
 python-box = "<=4.0.0"
 bumpversion = "^0.5.3"
