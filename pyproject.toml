@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lgblkb-tools"
-version = "2.0.15"
+version = "2.0.21"
 description = "Helper tools for lgblkb)"
 authors = ["lgblkb <dbakhtiyarov@nu.edu.kz>"]
 
@@ -14,7 +14,7 @@ geojson = "^2.5.0"
 shapely = "^1.7.0"
 python-log-indenter = "^0.9"
 wrapt = "^1.12.0"
-colorlog = "^4.1.0"
+colorlog = "^4"
 python-telegram-bot = "^12.4.2"
 pyproj = "^2.5.0"
 geopandas = "^0.7.0"
@@ -22,9 +22,9 @@ opencv-python = "^4.2.0"
 scipy = "^1.4.1"
 geoalchemy2 = "^0.6.3"
 sqlalchemy = "^1.3.13"
-dynaconf = "^3"
+dynaconf = "<3.1"
 pyyaml = "^5.3"
-python-box = "<=4.0.0"
+python-box = { extras = ["ruamel.yaml", "toml"], version = ">4" }
 bumpversion = "^0.5.3"
 gitchangelog = "^3.0.4"
 invoke = "^1.4.1"

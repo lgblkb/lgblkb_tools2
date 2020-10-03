@@ -1,0 +1,8 @@
+default:
+  X: 3
+
+development:
+  X:
+    val1: 123
+    val2: 369
+

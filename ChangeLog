@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Updated requirements.txt. [lgblkb]
 - Fixed bug with datetime_loc_index when generating path. [lgblkb]
 - Update requirements.txt. [lgblkb]
 - Read and write raster metadata. Bug fixes. [lgblkb]
